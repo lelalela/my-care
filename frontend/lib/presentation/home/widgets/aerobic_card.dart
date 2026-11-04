@@ -222,53 +222,63 @@ class _AerobicCardState extends State<AerobicCard> {
           ),
           const SizedBox(height: 16),
 
-          // 10분 단위 목표 시간 선택 칩
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                '목표 운동 시간 선택',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              Text(
-                '$_selectedDuration분 설정됨',
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.primary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-
-          // 10분 단위 퀵 칩 선택 바
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
+          // 10분 단위 목표 시간 조절 Stepper
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.outlineVariant),
+            ),
             child: Row(
-              children: [10, 20, 30, 40, 50, 60].map((mins) {
-                final isSelected = _selectedDuration == mins;
-                return Padding(
-                  padding: const EdgeInsets.only(right: 6),
-                  child: ChoiceChip(
-                    label: Text('$mins분'),
-                    selected: isSelected,
-                    onSelected: (_) => setState(() => _selectedDuration = mins),
-                    visualDensity: VisualDensity.compact,
-                    labelStyle: TextStyle(
-                      fontSize: 12,
-                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                      color: isSelected ? AppColors.onPrimary : AppColors.textSecondary,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Row(
+                  children: [
+                    Icon(Icons.timer_outlined,
+                        size: 18, color: AppColors.primary),
+                    SizedBox(width: 8),
+                    Text(
+                      '목표 워킹 시간',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
-                    selectedColor: AppColors.primary,
-                    showCheckmark: false,
-                  ),
-                );
-              }).toList(),
+                  ],
+                ),
+                Row(
+                  children: [
+                    IconButton.filledTonal(
+                      onPressed: _selectedDuration > 10
+                          ? () => setState(() => _selectedDuration -= 10)
+                          : null,
+                      icon: const Icon(Icons.remove, size: 18),
+                      visualDensity: VisualDensity.compact,
+                      tooltip: '10분 줄이기',
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      '$_selectedDuration분',
+                      style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    IconButton.filledTonal(
+                      onPressed: _selectedDuration < 120
+                          ? () => setState(() => _selectedDuration += 10)
+                          : null,
+                      icon: const Icon(Icons.add, size: 18),
+                      visualDensity: VisualDensity.compact,
+                      tooltip: '10분 늘리기',
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 14),

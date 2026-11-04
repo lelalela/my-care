@@ -28,13 +28,13 @@ void main() {
     await tester.tap(ctaButton);
     await tester.pumpAndSettle();
 
-    // 4. 홈 대시보드 검증 (주간 스트릭 카드 & 목표 시간 칩)
+    // 4. 홈 대시보드 검증 (주간 스트릭 카드 & 목표 워킹 시간)
     expect(find.text('오늘의 운동 처방'), findsOneWidget);
     expect(find.text('오늘의 운동을 시작해 보세요!'), findsOneWidget);
-    expect(find.text('목표 운동 시간 선택'), findsOneWidget);
+    expect(find.text('목표 워킹 시간'), findsOneWidget);
 
     // 5. 근력 운동 영역으로 스크롤 후 세트 트래커 테스트
-    final routineTitle = find.text('오늘의 맞춤 근력 루틴');
+    final routineTitle = find.text('맞춤 근력 & 홈트');
     await tester.scrollUntilVisible(routineTitle, 250, scrollable: find.byType(Scrollable).first);
     await tester.pumpAndSettle();
 
@@ -54,11 +54,11 @@ void main() {
     await tester.tap(find.text('나중에 이어서 하기'));
     await tester.pumpAndSettle();
 
-    // 6. 상단 유산소 카드로 다시 스크롤 후 10분 단위 칩 '30분' 선택
-    final chip30 = find.text('30분');
-    await tester.scrollUntilVisible(chip30, -250, scrollable: find.byType(Scrollable).first);
+    // 6. 상단 유산소 영역으로 다시 스크롤 후 Stepper '10분 줄이기' 탭 (40분 -> 30분)
+    final reduceButton = find.byTooltip('10분 줄이기');
+    await tester.scrollUntilVisible(reduceButton, -250, scrollable: find.byType(Scrollable).first);
     await tester.pumpAndSettle();
-    await tester.tap(chip30);
+    await tester.tap(reduceButton);
     await tester.pumpAndSettle();
 
     final startButton = find.text('115 SPM 워킹 코칭 시작 (30분)');
@@ -112,7 +112,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // 근력 루틴 헤더로 스크롤
-    final routineTitle = find.text('오늘의 맞춤 근력 루틴');
+    final routineTitle = find.text('맞춤 근력 & 홈트');
     await tester.scrollUntilVisible(routineTitle, 250, scrollable: find.byType(Scrollable).first);
     await tester.pumpAndSettle();
 

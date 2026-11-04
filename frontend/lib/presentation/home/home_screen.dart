@@ -4,8 +4,7 @@ import '../../domain/model/prescription.dart';
 import '../../ui/app_colors.dart';
 import '../walking/walking_screen.dart';
 import 'home_view_model.dart';
-import 'widgets/aerobic_card.dart';
-import 'widgets/exercise_routine_card.dart';
+import 'widgets/daily_workout_card.dart';
 import 'widgets/exercise_set_tracker_dialog.dart';
 import 'widgets/safety_warning_card.dart';
 import 'widgets/set_count_input_dialog.dart';
@@ -185,9 +184,12 @@ class HomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // 2. 오늘의 맞춤 유산소 카드
-            AerobicCard(
-              prescription: prescription.aerobic,
+            // 2. 오늘의 맞춤 하루 운동 루틴 (유산소 1단계 + 근력 2단계 통합)
+            DailyWorkoutCard(
+              aerobic: prescription.aerobic,
+              exercises: prescription.exercises,
+              defaultTargetSets: state.defaultTargetSets,
+              customExerciseSets: state.customExerciseSets,
               onStartWalking: (durationMinutes) async {
                 await Navigator.of(context).push(
                   MaterialPageRoute(
@@ -200,14 +202,6 @@ class HomeScreen extends StatelessWidget {
                 );
                 onRefreshHistory();
               },
-            ),
-            const SizedBox(height: 24),
-
-            // 3. 오늘의 맞춤 근력 / 홈트 루틴 카드 목록 (세트 체크리스트 연결)
-            ExerciseRoutineCard(
-              exercises: prescription.exercises,
-              defaultTargetSets: state.defaultTargetSets,
-              customExerciseSets: state.customExerciseSets,
               onExerciseTapped: (exercise) {
                 _openExerciseTracker(context, exercise);
               },
@@ -215,7 +209,7 @@ class HomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // 4. 임상 안전 및 주의사항 카드
+            // 3. 임상 안전 및 주의사항 카드
             SafetyWarningCard(warnings: prescription.safetyWarnings),
             const SizedBox(height: 32),
           ],
