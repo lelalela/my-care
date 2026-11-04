@@ -51,8 +51,16 @@
    - 다중 질환 병합, 환경(`all`, `gym`, `home`) 필터링, 식사 시간 기반 타이밍 코칭 로직 구현.
 4. **단위 테스트 작성 및 검증 통과**:
    - [backend/tests/test_recommendation.py](backend/tests/test_recommendation.py) (3 passed in 0.05s).
-5. **Flutter 프로젝트 뼈대 생성**:
-   - `frontend/` 디렉터리에 Flutter 3.x 프로젝트 초기화 완료.
+5. **Flutter 크로스플랫폼 디자인 시스템 & 온보딩 화면 구현 완료**:
+   - M3 테마 및 iOS 제스처 호환 시스템 구축 (`frontend/lib/ui/`)
+   - 6대 질환 복수 선택 및 환경 설정 화면 (`frontend/lib/presentation/onboarding/`)
+   - 실시간 임상 가이드라인 결합 피드백 배너
+6. **Flutter 메인 홈 대시보드 화면 구현 완료**:
+   - `frontend/lib/presentation/home/`
+   - 오늘의 맞춤 유산소 카드 (목표 SPM, 골든타임, 목표 지속 시간, 권장 시속)
+   - 맞춤 근력 / 홈트 루틴 카드 (타겟 부위, 세트/반복수, 임상 효과, 주의사항)
+   - 임상 안전 수칙 (필독) 카드 (발살바 호흡 금기, 수분 섭취, 관절 보호)
+   - 위젯 인터랙션 테스트 통과 (`frontend/test/widget_test.dart`)
 
 ---
 
@@ -71,10 +79,11 @@ uvicorn app.main:app --app-dir backend --reload --port 8000
 # Swagger 문서: http://localhost:8000/docs
 ```
 
-### 프론트엔드 작업
+### 프론트엔드 작업 및 테스트
 ```bash
 cd /home/yjnoh/Works/my-care/frontend
-flutter pub get
+flutter test
+flutter analyze
 # flutter run  (기기/에뮬레이터/크롬/리눅스 데스크톱)
 ```
 
@@ -82,13 +91,7 @@ flutter pub get
 
 ## 5. 다음 작업자를 위한 추천 다음 단계 (Next Steps)
 
-1. **Flutter 온보딩 다중 질환 선택 화면 (`frontend/lib/features/onboarding/`)**:
-   - 6개 질환 칩(Checkable Chip / Card) 형태로 복수 선택 UI 구성
-   - 운동 환경 선택 (헬스장 / 홈트 / 야외)
-2. **Flutter 홈 대시보드 화면 (`frontend/lib/features/home/`)**:
-   - 선택된 질환에 따른 "오늘의 맞춤 유산소 카드" (목표 SPM, 권장 시간, 식후 골든타임)
-   - "추천 근력/홈트 루틴 카드" (기구명, 세트/반복, 주의사항 배지)
-3. **워킹 코칭 인터페이스 (`frontend/lib/features/walking/`)**:
-   - 걸음 템포를 맞춰주는 SPM 메트로놈/진동 피드백 및 걷기 타이머
-4. **FastAPI 백엔드 ↔ Flutter HTTP 통신 연동**:
-   - `http` 또는 `dio` 패키지를 통해 `/api/recommend` 엔드포인트 호출
+1. **워킹 메트로놈 & 실시간 코칭 화면 (`frontend/lib/presentation/walking/`)**:
+   - 처방된 SPM(예: 115 SPM)에 맞춰 비트/진동/사운드 피드백을 주는 실시간 워킹 타이머
+2. **FastAPI 백엔드 ↔ Flutter HTTP 통신 연동**:
+   - `http` 패키지를 통한 `/api/recommend` 엔드포인트 연동 및 오프라인-온라인 하이브리드 지원
