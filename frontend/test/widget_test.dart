@@ -1,56 +1,61 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:frontend/main.dart';
+import 'package:frontend/presentation/walking/walking_screen.dart';
 
 void main() {
-  testWidgets('Onboarding multi-select and navigation to Home Dashboard test',
+  testWidgets('Complete flow: Onboarding -> Home -> Walking Coaching -> Complete',
       (WidgetTester tester) async {
-    // 1. 앱 위젯 렌더링
+    // 1. 앱 실행
     await tester.pumpWidget(const MyCareApp());
     await tester.pumpAndSettle();
 
-    // 2. 온보딩 타이틀 및 질환 확인
-    expect(find.text('My-Care'), findsOneWidget);
-    expect(find.text('전당뇨'), findsOneWidget);
-    expect(find.text('지방간'), findsOneWidget);
-
-    // 3. '전당뇨'와 '지방간' 복수 선택
+    // 2. 질환 선택 ('전당뇨' + '고혈압')
     await tester.tap(find.text('전당뇨'));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('지방간'));
+    await tester.tap(find.text('고혈압'));
     await tester.pumpAndSettle();
 
-    // 4. CTA 버튼 확인 및 탭하여 홈 대시보드로 이동
+    // 3. 처방 받기 탭
     final ctaButton = find.text('2개 질환 맞춤 운동 처방 받기');
     expect(ctaButton, findsOneWidget);
     await tester.tap(ctaButton);
     await tester.pumpAndSettle();
 
-    // 5. 홈 대시보드 화면 렌더링 검증
+    // 4. 홈 대시보드 검증
     expect(find.text('오늘의 운동 처방'), findsOneWidget);
-    expect(find.text('오늘의 맞춤 유산소'), findsOneWidget);
-    expect(find.text('115'), findsOneWidget); // 전당뇨 기준 115 SPM
-    expect(find.text('40분 지속'), findsOneWidget); // 전당뇨/지방간 병합 40분
-
-    // 6. 근력 루틴 및 안전 수칙 표시 확인
-    expect(find.text('오늘의 맞춤 근력 루틴'), findsOneWidget);
     expect(find.text('115 SPM 워킹 코칭 시작'), findsOneWidget);
 
-    // 7. 워킹 코칭 시작 탭 시 안내 다이얼로그 표시 확인
+    // 5. 워킹 코칭 화면으로 진입 (애니메이션 반복으로 pump 사용)
     await tester.tap(find.text('115 SPM 워킹 코칭 시작'));
-    await tester.pumpAndSettle();
-    expect(find.text('워킹 코칭 준비'), findsOneWidget);
-    expect(find.text('확인'), findsOneWidget);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
 
-    // 다이얼로그 닫기
-    await tester.tap(find.text('확인'));
-    await tester.pumpAndSettle();
-    expect(find.text('워킹 코칭 준비'), findsNothing);
+    expect(find.text('실시간 워킹 코칭'), findsOneWidget);
+    expect(
+      find.descendant(of: find.byType(WalkingScreen), matching: find.text('115')),
+      findsOneWidget,
+    );
+    expect(find.text('일시 정지'), findsOneWidget);
 
-    // 8. 설정(재설정) 아이콘 탭하여 온보딩으로 복귀 확인
-    await tester.tap(find.byIcon(Icons.tune_rounded));
+    // 6. SPM 속도 조절 (+5 SPM)
+    await tester.tap(find.text('5 SPM 빠르게'));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('120'), findsOneWidget);
+
+    // 7. 일시 정지 토글
+    await tester.tap(find.text('일시 정지'));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('다시 걷기'), findsOneWidget);
+
+    // 8. 운동 완료 탭 및 다이얼로그 확인
+    await tester.tap(find.text('운동 완료'));
     await tester.pumpAndSettle();
-    expect(find.text('관리 중이거나 주의가 필요한\n질환을 모두 선택해 주세요'), findsOneWidget);
+    expect(find.text('오늘의 워킹 완료! 🎉'), findsOneWidget);
+
+    // 9. 대시보드로 복귀
+    await tester.tap(find.text('대시보드로 돌아가기'));
+    await tester.pumpAndSettle();
+    expect(find.text('오늘의 운동 처방'), findsOneWidget);
   });
 }

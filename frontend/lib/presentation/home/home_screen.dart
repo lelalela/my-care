@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../domain/model/condition_type.dart';
 import '../../ui/app_colors.dart';
+import '../walking/walking_screen.dart';
 import 'home_view_model.dart';
 import 'widgets/aerobic_card.dart';
 import 'widgets/exercise_routine_card.dart';
@@ -168,8 +169,14 @@ class HomeScreen extends StatelessWidget {
             AerobicCard(
               prescription: prescription.aerobic,
               onStartWalking: () {
-                _showWalkingCoachingDialog(
-                    context, prescription.aerobic.cadenceSpm);
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => WalkingRoot(
+                      targetSpm: prescription.aerobic.cadenceSpm,
+                      durationMinutes: prescription.aerobic.durationMinutes,
+                    ),
+                  ),
+                );
               },
             ),
             const SizedBox(height: 24),
@@ -184,26 +191,6 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-
-  void _showWalkingCoachingDialog(BuildContext context, int spm) {
-    showAdaptiveDialog(
-      context: context,
-      builder: (ctx) {
-        return AlertDialog.adaptive(
-          title: const Text('워킹 코칭 준비'),
-          content: Text(
-            '목표 템포: 분당 $spm 걸음 (SPM)\n\n리듬에 맞춰 일정한 보폭으로 걸어보세요. 식후 혈당 및 내장지방 연소에 최적화된 속도입니다.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('확인'),
-            ),
-          ],
-        );
-      },
     );
   }
 }

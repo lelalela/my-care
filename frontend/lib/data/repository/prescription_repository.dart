@@ -1,11 +1,32 @@
 import '../../domain/model/condition_type.dart';
 import '../../domain/model/prescription.dart';
+import '../data_source/remote/prescription_api_client.dart';
 
 /// 맞춤 운동 처방 생성 리포지토리
-/// 백엔드 FastAPI 엔진과 동일한 임상 가이드라인 병합 알고리즘을 로컬에서도 실행할 수 있도록 지원합니다.
+/// 백엔드 FastAPI 서버와 통신하며, 오프라인 시에도 자체 임상 가이드라인 알고리즘으로 안전하게 동작합니다.
 class PrescriptionRepository {
-  const PrescriptionRepository();
+  const PrescriptionRepository({
+    this.apiClient,
+  });
 
+  final PrescriptionApiClient? apiClient;
+
+  /// 비동기 처방 생성 (FastAPI 우선 시도 -> 오프라인 폴백)
+  Future<WorkoutPrescription> getPrescription({
+    required Set<ConditionType> conditions,
+    required ExerciseEnvironment environment,
+  }) async {
+    if (apiClient != null) {
+      final remote = await apiClient!.fetchRecommendation(
+        conditions: conditions,
+        environment: environment,
+      );
+      if (remote != null) return remote;
+    }
+    return generatePrescription(conditions: conditions, environment: environment);
+  }
+
+  /// 동기 처방 생성 (로컬 임상 알고리즘)
   WorkoutPrescription generatePrescription({
     required Set<ConditionType> conditions,
     required ExerciseEnvironment environment,

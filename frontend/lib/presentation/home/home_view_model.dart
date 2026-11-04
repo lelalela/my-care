@@ -63,11 +63,11 @@ class HomeViewModel extends ChangeNotifier {
     }
   }
 
-  void _loadPrescription() {
+  Future<void> _loadPrescription() async {
     _state = _state.copyWith(isLoading: true);
     notifyListeners();
 
-    final result = _repository.generatePrescription(
+    final result = await _repository.getPrescription(
       conditions: _state.conditions,
       environment: _state.environment,
     );
