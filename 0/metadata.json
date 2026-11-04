@@ -1,0 +1,47 @@
+{
+  "cli_version": "0.12.2",
+  "checkpoint_id": "01M6JQ5A044M2NM8S4ARMKEAGC",
+  "session_id": "fa47650c-a012-4c8a-a243-d4a1d1c915ff",
+  "strategy": "manual-commit",
+  "created_at": "2026-11-04T07:25:17.570035982Z",
+  "branch": "main",
+  "checkpoints_count": 6,
+  "files_touched": [
+    "frontend/lib/data/repository/prescription_repository.dart",
+    "frontend/lib/domain/model/biweekly_routine.dart",
+    "frontend/lib/presentation/home/home_screen.dart",
+    "frontend/lib/presentation/home/home_view_model.dart",
+    "frontend/lib/presentation/selection/exercise_selection_screen.dart",
+    "frontend/lib/presentation/selection/widgets/biweekly_routine_view.dart",
+    "frontend/test/biweekly_routine_test.dart"
+  ],
+  "agent": "Antigravity",
+  "model": "",
+  "turn_id": "1db69ab1ebe7",
+  "checkpoint_transcript_start": 2581,
+  "transcript_lines_at_start": 2581,
+  "token_usage": {
+    "input_tokens": 59877,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 8110525,
+    "output_tokens": 13092,
+    "api_call_count": 49
+  },
+  "redaction": {
+    "replacements": 129,
+    "layers": {
+      "betterleaks": 0,
+      "connection_string": 0,
+      "credential_key": 0,
+      "credential_value": 2,
+      "credentialed_uri": 0,
+      "entropy": 146,
+      "key_context": 0,
+      "provider_token": 0,
+      "shell_stdin": 0
+    }
+  },
+  "session_metrics": {
+    "turn_count": 16
+  }
+}

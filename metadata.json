@@ -1,0 +1,45 @@
+{
+  "cli_version": "0.12.2",
+  "checkpoint_id": "01M6JQ5A044M2NM8S4ARMKEAGC",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 6,
+  "files_touched": [
+    "frontend/lib/data/repository/prescription_repository.dart",
+    "frontend/lib/domain/model/biweekly_routine.dart",
+    "frontend/lib/presentation/home/home_screen.dart",
+    "frontend/lib/presentation/home/home_view_model.dart",
+    "frontend/lib/presentation/selection/exercise_selection_screen.dart",
+    "frontend/lib/presentation/selection/widgets/biweekly_routine_view.dart",
+    "frontend/test/biweekly_routine_test.dart"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 59877,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 8110525,
+    "output_tokens": 13092,
+    "api_call_count": 49
+  },
+  "redaction": {
+    "replacements": 129,
+    "layers": {
+      "betterleaks": 0,
+      "connection_string": 0,
+      "credential_key": 0,
+      "credential_value": 2,
+      "credentialed_uri": 0,
+      "entropy": 146,
+      "key_context": 0,
+      "provider_token": 0,
+      "shell_stdin": 0
+    }
+  }
+}
