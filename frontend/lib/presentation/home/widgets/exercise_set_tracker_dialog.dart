@@ -148,62 +148,6 @@ class _ExerciseSetTrackerDialogState extends State<ExerciseSetTrackerDialog> {
     });
   }
 
-  /// [UI 5] 안전 가드 (Safety Exit) 다이얼로그
-  void _showSafetyExitDialog() {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        icon: const Icon(Icons.warning_amber_rounded,
-            color: AppColors.redAlert, size: 40),
-        title: const Text(
-          '운동 즉시 중단 및 휴식 안내',
-          style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              '⚠️ 무리한 운동은 혈압 상승 및 저혈당을 유발할 수 있습니다.',
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                color: AppColors.redAlert,
-                fontSize: 13,
-              ),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              '• 가슴 통증, 어지러움, 호흡 곤란 시 즉시 앉아서 휴식하세요.\n'
-              '• 미지근한 물을 천천히 마시고 심호흡을 하세요.\n'
-              '• 증상이 지속될 경우 의료진의 진료를 받으셔야 합니다.',
-              style: TextStyle(fontSize: 12.5, height: 1.45),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('계속 운동하기'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: AppColors.redAlert),
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              Navigator.of(context).pop(); // 바텀시트 닫기
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('안전을 위해 운동을 중단했습니다. 편안히 휴식을 취하세요.'),
-                  backgroundColor: AppColors.redAlert,
-                ),
-              );
-            },
-            child: const Text('운동 중단 및 종료'),
-          ),
-        ],
-      ),
-    );
-  }
-
   /// 혈당 기록 저장
   Future<void> _saveBloodSugarData() async {
     final pre = int.tryParse(_preGlucoseController.text.trim());

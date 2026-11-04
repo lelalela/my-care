@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../domain/model/prescription.dart';
 import '../../../ui/app_colors.dart';
 
@@ -229,6 +230,37 @@ class _ExerciseDetailDialogState extends State<ExerciseDetailDialog> {
                             ),
                           ),
                         ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+
+                // [신규] 국민체력100 공식 시연 동영상 버튼
+                if (ex.videoUrl != null) ...[
+                  FilledButton.icon(
+                    onPressed: () async {
+                      final uri = Uri.parse(ex.videoUrl!);
+                      if (await canLaunchUrl(uri)) {
+                        await launchUrl(uri,
+                            mode: LaunchMode.externalApplication);
+                      }
+                    },
+                    style: FilledButton.styleFrom(
+                      backgroundColor: const Color(0xFFCD201F), // 유튜브 레드 브랜드 컬러
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    icon: const Icon(Icons.play_circle_fill_rounded, size: 20),
+                    label: const Text(
+                      '국민체력100 공식 시연 영상 보기 ▶',
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),

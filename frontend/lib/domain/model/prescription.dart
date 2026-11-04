@@ -34,6 +34,7 @@ class PrescribedExercise {
     this.jointCautions = const [],
     this.images = const [],
     this.steps = const [],
+    this.videoUrl,
   });
 
   final String name;
@@ -46,6 +47,7 @@ class PrescribedExercise {
   final List<String> jointCautions; // 'knee', 'back', 'shoulder' 등
   final List<String> images; // 0.jpg, 1.jpg (시작/수축 자세)
   final List<String> steps; // 1~3단계 동작 설명
+  final String? videoUrl; // 공식 동영상 링크 (YouTube)
 }
 
 /// 종합 운동 처방 결과 모델

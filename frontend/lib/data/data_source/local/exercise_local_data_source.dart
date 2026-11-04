@@ -104,6 +104,7 @@ class ExerciseLocalDataSource {
         jointCautions: jointList,
         images: imageList,
         steps: stepList,
+        videoUrl: m['videoUrl'] as String?,
       );
     }).toList();
 
