@@ -1,0 +1,231 @@
+[
+  {
+    "id": "fatty_liver",
+    "name_ko": "지방간 (비알코올성)",
+    "name_en": "Non-Alcoholic Fatty Liver Disease (NAFLD)",
+    "target_goals": [
+      "간 내 지방 축적 감소 및 내장지방 연소",
+      "인슐린 저항성 완화 및 간 수치(ALT/AST) 정상화",
+      "유산소-저항성 복합 운동을 통한 체성분 개선"
+    ],
+    "aerobic_guide": {
+      "frequency_days_per_week": "주 3~5일 (주당 총 150~250분)",
+      "target_duration_minutes": 40,
+      "recommended_time_window": "오전 또는 오후 편한 시간대 (지속성이 높은 시간)",
+      "intensity": "중등도 (최대심박수의 55~70%, '약간 숨이 차지만 대화는 가능한 수준')",
+      "walking_cadence_spm": {
+        "min": 100,
+        "max": 120,
+        "recommended": 110
+      },
+      "walking_speed_kmh": {
+        "min": 4.8,
+        "max": 5.8
+      },
+      "tips": [
+        "최소 30분 이상 지속하여 내장지방 산화율을 높이세요.",
+        "운동 전후 충분한 수분 섭취로 탈수에 의한 간 부담을 방지하세요."
+      ]
+    },
+    "resistance_guide": {
+      "frequency_days_per_week": "주 2~3일",
+      "target_sets": "2~3세트",
+      "reps_per_set": "10~15회 (중등도 저항)",
+      "target_muscles": ["하체(대퇴사두, 둔근)", "등(광배근)", "가슴(대흉근)"],
+      "recommended_exercises": [
+        {
+          "name": "레그프레스 (Leg Press)",
+          "category": "gym_machine",
+          "target": "하체 전체",
+          "reps": "12~15회 x 3세트",
+          "benefit": "인체 최대 근육군 활성화로 기초대사율 및 지방 산화 촉진",
+          "caution": "무릎을 완전히 펴서 락킹(locking)하지 마세요."
+        },
+        {
+          "name": "맨몸 스쿼트 / 월싯 (Squat / Wall Sit)",
+          "category": "home_bodyweight",
+          "target": "허벅지 & 둔근",
+          "reps": "15회 x 3세트 (또는 30초 유지 x 3세트)",
+          "benefit": "헬스장 없이도 가정에서 포도당/지방 대사 자극",
+          "caution": "무릎이 발끝보다 너무 앞으로 나가지 않도록 주의하세요."
+        },
+        {
+          "name": "체스트프레스 (Chest Press)",
+          "category": "gym_machine",
+          "target": "가슴 & 삼두",
+          "reps": "12회 x 3세트",
+          "benefit": "상체 대근육 운동으로 총 칼로리 소비 증대",
+          "caution": "어깨가 위로 으쓱 올라가지 않게 견갑을 고정하세요."
+        },
+        {
+          "name": "푸시업 변형 (인클라인/무릎 푸시업)",
+          "category": "home_bodyweight",
+          "target": "상체 전반",
+          "reps": "10~12회 x 3세트",
+          "benefit": "홈트레이닝 환경에서 효과적인 상체 근력 향상",
+          "caution": "허리가 꺾이지 않도록 코어에 힘을 유지하세요."
+        },
+        {
+          "name": "랫풀다운 (Lat Pulldown)",
+          "category": "gym_machine",
+          "target": "등(광배근) & 상체 후면",
+          "reps": "12회 x 3세트",
+          "benefit": "등 대근육 자극 및 상체 밸런스 유지",
+          "caution": "바를 가슴 윗부분까지만 당기고 상체를 과도하게 눕히지 마세요."
+        },
+        {
+          "name": "튜빙밴드 로우 (Band Row)",
+          "category": "home_tool",
+          "target": "등 근육",
+          "reps": "15회 x 3세트",
+          "benefit": "소도구를 활용한 안전한 등 근력 강화",
+          "caution": "어깨를 내리고 팔꿈치를 몸통 뒤로 당기세요."
+        }
+      ]
+    },
+    "contraindications_and_warnings": [
+      "과도한 고중량 1RM 도전 등 극단적 부하 자제 (간 손상 방지)",
+      "운동 후 음주 및 고당류 음료 절대 금기",
+      "탈수 방지를 위해 운동 중 규칙적 물 섭취 필수"
+    ]
+  },
+  {
+    "id": "prediabetes",
+    "name_ko": "전당뇨 (공복혈당장애 / 내당능장애)",
+    "name_en": "Prediabetes",
+    "target_goals": [
+      "식후 급격한 혈당 스파이크 억제 및 인슐린 감수성 극대화",
+      "말초 골격근의 GLUT4(포도당 수송체) 활성화로 혈중 당 흡수 촉진",
+      "당뇨병 본태성 발병으로의 진행 예방 (골든타임 관리)"
+    ],
+    "aerobic_guide": {
+      "frequency_days_per_week": "주 4~6일 (최소 주 150분)",
+      "target_duration_minutes": 30,
+      "recommended_time_window": "식사 후 30분 ~ 1시간 이내 (식후 혈당 피크 타이밍)",
+      "intensity": "중등도 (약간 땀이 맺히고 호흡이 빨라지는 정도)",
+      "walking_cadence_spm": {
+        "min": 105,
+        "max": 125,
+        "recommended": 115
+      },
+      "walking_speed_kmh": {
+        "min": 5.0,
+        "max": 6.0
+      },
+      "tips": [
+        "식사 직후 가만히 앉아있기보다 식후 30분 시점에 걷기를 시작하면 혈당 피크를 효과적으로 깎아냅니다.",
+        "보폭을 평소보다 5~10cm 넓혀 활기차게 걸으세요."
+      ]
+    },
+    "resistance_guide": {
+      "frequency_days_per_week": "주 2~3일 (유산소와 격일 또는 유산소 전후)",
+      "target_sets": "2~3세트",
+      "reps_per_set": "12~15회",
+      "target_muscles": ["하체(대퇴사두근, 둔근, 햄스트링)", "등", "가슴"],
+      "recommended_exercises": [
+        {
+          "name": "레그프레스 (Leg Press)",
+          "category": "gym_machine",
+          "target": "하체 대퇴사두근 & 둔근",
+          "reps": "12~15회 x 3세트",
+          "benefit": "인체 포도당의 약 70%를 소비하는 허벅지/엉덩이 근육 집중 활성화",
+          "caution": "발판 위치를 어깨너비로 편안히 잡고, 허리가 등받이에서 뜨지 않게 주의하세요."
+        },
+        {
+          "name": "의자 스쿼트 / 맨몸 스쿼트 (Chair Squat)",
+          "category": "home_bodyweight",
+          "target": "허벅지 & 둔근",
+          "reps": "15회 x 3세트",
+          "benefit": "식후 실내에서 바로 할 수 있는 가장 강력한 혈당 흡수 운동",
+          "caution": "앉을 때 엉덩이를 뒤로 빼고 체중을 발뒤꿈치에 실으세요."
+        },
+        {
+          "name": "랫풀다운 (Lat Pulldown)",
+          "category": "gym_machine",
+          "target": "등 전체",
+          "reps": "12회 x 3세트",
+          "benefit": "상체 글리코겐 저장소 확보를 위한 광배근 발달",
+          "caution": "반동을 이용해 당기지 마세요."
+        },
+        {
+          "name": "덤벨/물병 런지 (Lunge)",
+          "category": "home_tool",
+          "target": "하체 및 균형감각",
+          "reps": "한 발당 10~12회 x 3세트",
+          "benefit": "양다리 고른 자극으로 포도당 흡수 효율 극대화",
+          "caution": "앞무릎이 좌우로 흔들리지 않게 주의하세요."
+        },
+        {
+          "name": "체스트프레스 (Chest Press)",
+          "category": "gym_machine",
+          "target": "가슴 근육",
+          "reps": "12회 x 3세트",
+          "benefit": "상체 근육량 증가로 전신 인슐린 민감도 상승",
+          "caution": "손목이 뒤로 과도하게 꺾이지 않도록 바를 잡으세요."
+        }
+      ]
+    },
+    "contraindications_and_warnings": [
+      "공복 상태에서 극단적인 고강도 무산소/유산소 운동 지양 (반동성 고혈당 또는 저혈당 쇼크 주의)",
+      "혈당 강하 약물 복용 시 사탕/포도당 캔디 항상 휴대",
+      "발에 상처나 물집이 생기지 않도록 쿠션감 있는 양말과 운동화 착용"
+    ]
+  },
+  {
+    "id": "hypertension",
+    "name_ko": "고혈압",
+    "name_en": "Hypertension",
+    "target_goals": [
+      "혈관 내피세포 기능 향상 및 일산화질소 분비 촉진으로 혈압 강하",
+      "말초 혈관 저항 감소 및 안정시 심박수 안정화"
+    ],
+    "aerobic_guide": {
+      "frequency_days_per_week": "주 5~7일 (매일 규칙적으로)",
+      "target_duration_minutes": 30,
+      "recommended_time_window": "오후 또는 저녁 (아침 기상 직후 급격한 혈압 상승 시간대 피함)",
+      "intensity": "중등도 (약간 숨차지만 편안한 걷기)",
+      "walking_cadence_spm": {
+        "min": 95,
+        "max": 115,
+        "recommended": 105
+      },
+      "walking_speed_kmh": {
+        "min": 4.5,
+        "max": 5.5
+      },
+      "tips": [
+        "기상 직후 1~2시간은 혈압이 가장 불안정한 시기이므로 격한 유산소는 피하세요.",
+        "운동 전 5분간 충분한 준비 스트레칭으로 혈관을 예열하세요."
+      ]
+    },
+    "resistance_guide": {
+      "frequency_days_per_week": "주 2~3일",
+      "target_sets": "2세트",
+      "reps_per_set": "15~20회 (저중량 고반복)",
+      "target_muscles": ["전신 순환 서킷"],
+      "recommended_exercises": [
+        {
+          "name": "레그프레스 (저중량 고반복)",
+          "category": "gym_machine",
+          "target": "하체",
+          "reps": "15~20회 x 2~3세트",
+          "benefit": "혈압 급상승 없이 하체 혈액 순환 개선",
+          "caution": "숨을 참는 발살바 호흡 절대 금지! 밀 때 내쉬고 내릴 때 들이쉬세요."
+        },
+        {
+          "name": "카프레이즈 (발뒤꿈치 들기)",
+          "category": "home_bodyweight",
+          "target": "종아리 (제2의 심장)",
+          "reps": "20회 x 3세트",
+          "benefit": "하체 정맥류 순환을 촉진하여 혈압 완화에 기여",
+          "caution": "균형을 위해 벽이나 의자를 잡고 안전하게 수행하세요."
+        }
+      ]
+    },
+    "contraindications_and_warnings": [
+      "무거운 무게를 들며 숨을 멈추는 발살바(Valsalva) 호흡 절대 금지",
+      "머리가 심장보다 아래로 내려가는 운동(디클라인 벤치 등) 금기",
+      "수축기 혈압 160mmHg 이상, 이완기 100mmHg 이상일 때는 운동 즉시 중단"
+    ]
+  }
+]
