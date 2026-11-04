@@ -35,12 +35,6 @@ class _AerobicCardState extends State<AerobicCard> {
     }
   }
 
-  void _adjustDuration(int delta) {
-    setState(() {
-      _selectedDuration = (_selectedDuration + delta).clamp(10, 120);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -228,56 +222,29 @@ class _AerobicCardState extends State<AerobicCard> {
           ),
           const SizedBox(height: 16),
 
-          // 10분 단위 목표 시간 설정 컨트롤러
+          // 10분 단위 목표 시간 선택 칩
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                '목표 운동 시간',
+                '목표 운동 시간 선택',
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,
                 ),
               ),
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.outlineVariant),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.remove, size: 16),
-                      visualDensity: VisualDensity.compact,
-                      tooltip: '10분 줄이기',
-                      onPressed: _selectedDuration > 10 ? () => _adjustDuration(-10) : null,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: Text(
-                        '$_selectedDuration분',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.add, size: 16),
-                      visualDensity: VisualDensity.compact,
-                      tooltip: '10분 늘리기',
-                      onPressed: _selectedDuration < 120 ? () => _adjustDuration(10) : null,
-                    ),
-                  ],
+              Text(
+                '$_selectedDuration분 설정됨',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primary,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
 
           // 10분 단위 퀵 칩 선택 바
           SingleChildScrollView(

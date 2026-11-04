@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/services/feedback_service.dart';
 import '../../ui/app_colors.dart';
 import 'walking_view_model.dart';
 import 'widgets/walking_rhythm_visualizer.dart';
@@ -20,19 +21,31 @@ class WalkingRoot extends StatefulWidget {
 
 class _WalkingRootState extends State<WalkingRoot> {
   late final WalkingViewModel _viewModel;
+  late final FeedbackService _feedbackService;
+  bool _dialogShown = false;
 
   @override
   void initState() {
     super.initState();
+    _feedbackService = FeedbackService();
     _viewModel = WalkingViewModel(
       initialSpm: widget.targetSpm,
       initialDurationMinutes: widget.durationMinutes,
+      onGoalReached: _handleGoalReached,
     );
+  }
+
+  void _handleGoalReached() {
+    if (!mounted || _dialogShown) return;
+    _dialogShown = true;
+    _feedbackService.playCompletionFeedback();
+    _showCompletionDialog(context, _viewModel.state);
   }
 
   @override
   void dispose() {
     _viewModel.dispose();
+    _feedbackService.dispose();
     super.dispose();
   }
 
@@ -46,6 +59,9 @@ class _WalkingRootState extends State<WalkingRoot> {
           state: state,
           onAction: _viewModel.onAction,
           onClose: () => _handleClose(context),
+          onFinish: () {
+            _handleGoalReached();
+          },
         );
       },
     );
@@ -77,6 +93,40 @@ class _WalkingRootState extends State<WalkingRoot> {
       Navigator.of(context).pop();
     }
   }
+
+  void _showCompletionDialog(BuildContext context, WalkingState state) {
+    showAdaptiveDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        return AlertDialog.adaptive(
+          title: const Text('오늘의 워킹 완료! 🎉'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '총 운동 시간: ${state.formattedElapsed}\n'
+                '달성 걸음 수: 약 ${state.estimatedSteps}보\n'
+                '소모 칼로리: 약 ${state.estimatedCalories} kcal\n\n'
+                '목표 시간을 모두 달성하셨습니다! 대사 질환 관리에 큰 효과를 거두셨으니 수분을 충분히 섭취해 주세요. 💧',
+                style: const TextStyle(fontSize: 14, height: 1.45),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                Navigator.of(context).pop();
+              },
+              child: const Text('대시보드로 돌아가기'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
 
 /// Walking Screen: 순수 StatelessWidget UI
@@ -86,11 +136,13 @@ class WalkingScreen extends StatelessWidget {
     required this.state,
     required this.onAction,
     required this.onClose,
+    required this.onFinish,
   });
 
   final WalkingState state;
   final ValueChanged<WalkingAction> onAction;
   final VoidCallback onClose;
+  final VoidCallback onFinish;
 
   @override
   Widget build(BuildContext context) {
@@ -113,7 +165,7 @@ class WalkingScreen extends StatelessWidget {
               minHeight: 4,
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -125,62 +177,13 @@ class WalkingScreen extends StatelessWidget {
                       color: AppColors.textSecondary,
                     ),
                   ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      InkWell(
-                        onTap: state.targetDurationMinutes > 10
-                            ? () => onAction(const AdjustDurationAction(-10))
-                            : null,
-                        borderRadius: BorderRadius.circular(8),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: AppColors.outlineVariant),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Text(
-                            '-10분',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '목표 ${state.targetDurationMinutes}분',
-                        style: const TextStyle(
-                          fontSize: 13.5,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      InkWell(
-                        onTap: state.targetDurationMinutes < 120
-                            ? () => onAction(const AdjustDurationAction(10))
-                            : null,
-                        borderRadius: BorderRadius.circular(8),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2.5),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: AppColors.outlineVariant),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Text(
-                            '+10분',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                  Text(
+                    '목표 ${state.targetDurationMinutes}분',
+                    style: const TextStyle(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.primary,
+                    ),
                   ),
                 ],
               ),
@@ -270,7 +273,7 @@ class WalkingScreen extends StatelessWidget {
                   Expanded(
                     flex: 1,
                     child: OutlinedButton(
-                      onPressed: () => _showCompletionDialog(context),
+                      onPressed: onFinish,
                       style: OutlinedButton.styleFrom(
                         minimumSize: const Size.fromHeight(54),
                         shape: RoundedRectangleBorder(
@@ -304,39 +307,6 @@ class WalkingScreen extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-
-  void _showCompletionDialog(BuildContext context) {
-    showAdaptiveDialog(
-      context: context,
-      builder: (ctx) {
-        return AlertDialog.adaptive(
-          title: const Text('오늘의 워킹 완료! 🎉'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '총 운동 시간: ${state.formattedElapsed}\n'
-                '달성 걸음 수: 약 ${state.estimatedSteps}보\n'
-                '소모 칼로리: 약 ${state.estimatedCalories} kcal\n\n'
-                '규칙적인 SPM 걷기로 대사 질환 관리에 큰 효과를 거두셨습니다. 수분을 충분히 섭취해 주세요!',
-                style: const TextStyle(fontSize: 14, height: 1.4),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(ctx).pop();
-                Navigator.of(context).pop();
-              },
-              child: const Text('대시보드로 돌아가기'),
-            ),
-          ],
-        );
-      },
     );
   }
 }

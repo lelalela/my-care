@@ -84,6 +84,7 @@ class WalkingViewModel extends ChangeNotifier {
   WalkingViewModel({
     required int initialSpm,
     required int initialDurationMinutes,
+    this.onGoalReached,
   }) : _state = WalkingState(
           targetSpm: initialSpm,
           targetDurationMinutes: initialDurationMinutes,
@@ -91,6 +92,7 @@ class WalkingViewModel extends ChangeNotifier {
     _startTimer();
   }
 
+  final VoidCallback? onGoalReached;
   WalkingState _state;
   WalkingState get state => _state;
   Timer? _timer;
@@ -129,6 +131,7 @@ class WalkingViewModel extends ChangeNotifier {
             isActive: false,
             isCompleted: true,
           );
+          onGoalReached?.call();
         } else {
           _state = _state.copyWith(elapsedSeconds: newElapsed);
         }
@@ -137,6 +140,7 @@ class WalkingViewModel extends ChangeNotifier {
       case FinishWalkingAction():
         _timer?.cancel();
         _state = _state.copyWith(isActive: false, isCompleted: true);
+        onGoalReached?.call();
         notifyListeners();
     }
   }
