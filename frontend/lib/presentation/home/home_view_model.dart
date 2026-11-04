@@ -12,6 +12,7 @@ class HomeState {
     this.prescription,
     this.streakDays = 0,
     this.completedWeekdays = const <int>{},
+    this.restWeekdays = const <int>{},
     this.weeklyMinutes = 0,
     this.records = const <WorkoutRecord>[],
     this.defaultTargetSets = 3,
@@ -26,6 +27,7 @@ class HomeState {
   final WorkoutPrescription? prescription;
   final int streakDays;
   final Set<int> completedWeekdays;
+  final Set<int> restWeekdays;
   final int weeklyMinutes;
   final List<WorkoutRecord> records;
   final int defaultTargetSets;
@@ -44,6 +46,7 @@ class HomeState {
     WorkoutPrescription? prescription,
     int? streakDays,
     Set<int>? completedWeekdays,
+    Set<int>? restWeekdays,
     int? weeklyMinutes,
     List<WorkoutRecord>? records,
     int? defaultTargetSets,
@@ -58,6 +61,7 @@ class HomeState {
       prescription: prescription ?? this.prescription,
       streakDays: streakDays ?? this.streakDays,
       completedWeekdays: completedWeekdays ?? this.completedWeekdays,
+      restWeekdays: restWeekdays ?? this.restWeekdays,
       weeklyMinutes: weeklyMinutes ?? this.weeklyMinutes,
       records: records ?? this.records,
       defaultTargetSets: defaultTargetSets ?? this.defaultTargetSets,
@@ -80,6 +84,10 @@ final class LoadPrescriptionAction extends HomeAction {
 
 final class RefreshHistoryAction extends HomeAction {
   const RefreshHistoryAction();
+}
+
+final class LogRestDayAction extends HomeAction {
+  const LogRestDayAction();
 }
 
 final class UpdateGlobalTargetSetsAction extends HomeAction {
@@ -136,6 +144,8 @@ class HomeViewModel extends ChangeNotifier {
         _loadPrescription();
       case RefreshHistoryAction():
         _loadHistory();
+      case LogRestDayAction():
+        _logRestDay();
       case UpdateGlobalTargetSetsAction(:final targetSets):
         _state = _state.copyWith(
           defaultTargetSets: targetSets,
@@ -184,16 +194,25 @@ class HomeViewModel extends ChangeNotifier {
   Future<void> _loadHistory() async {
     final streak = await _historyRepository.getStreak();
     final weekdays = await _historyRepository.getWeeklyCompletedDays();
+    final restDays = await _historyRepository.getWeeklyRestDays();
     final minutes = await _historyRepository.getWeeklyTotalMinutes();
     final records = await _historyRepository.getRecords();
 
     _state = _state.copyWith(
       streakDays: streak,
       completedWeekdays: weekdays,
+      restWeekdays: restDays,
       weeklyMinutes: minutes,
       records: records,
     );
     notifyListeners();
+  }
+
+  Future<void> _logRestDay() async {
+    await _historyRepository.saveRestDay(
+      _state.conditions.map((c) => c.name).toList(),
+    );
+    await _loadHistory();
   }
 
   Future<void> logStrengthWorkout(PrescribedExercise exercise, [int completedSets = 3]) async {
@@ -210,6 +229,8 @@ class HomeViewModel extends ChangeNotifier {
       calories: calories,
       spm: 0,
       conditions: _state.conditions.map((c) => c.name).toList(),
+      exerciseName: exercise.name,
+      completedSets: completedSets,
     );
     await _historyRepository.saveRecord(record);
     await _loadHistory();

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import '../../data/repository/routine_template_repository.dart';
 import '../../domain/model/condition_type.dart';
 import '../../domain/model/prescription.dart';
+import '../../domain/model/routine_template.dart';
 import '../../ui/app_colors.dart';
 import '../walking/walking_screen.dart';
 import 'home_view_model.dart';
@@ -110,6 +112,11 @@ class HomeScreen extends StatelessWidget {
         title: const Text('오늘의 운동 처방'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.bookmark_add_outlined),
+            tooltip: '현재 구성을 템플릿으로 저장',
+            onPressed: () => _saveCurrentRoutineAsTemplate(context),
+          ),
+          IconButton(
             icon: const Icon(Icons.tune_rounded),
             tooltip: '질환 및 환경 재설정',
             onPressed: onEditProfile,
@@ -194,8 +201,10 @@ class HomeScreen extends StatelessWidget {
             WeeklyStreakCard(
               streakDays: state.streakDays,
               completedWeekdays: state.completedWeekdays,
+              restWeekdays: state.restWeekdays,
               weeklyMinutes: state.weeklyMinutes,
               records: state.records,
+              onLogRestDay: () => onAction(const LogRestDayAction()),
             ),
             const SizedBox(height: 20),
 
@@ -251,12 +260,15 @@ class HomeScreen extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      isDismissible: false,
+      enableDrag: false,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (ctx) => ExerciseSetTrackerDialog(
         exercise: exercise,
         targetSets: targetSets,
+        conditions: state.conditions.map((c) => c.name).toList(),
         onExerciseCompleted: (sets) => onLogStrength(exercise, sets),
         onUpdateTargetSets: (newSets, applyToAll) {
           onAction(
@@ -269,5 +281,94 @@ class HomeScreen extends StatelessWidget {
         },
       ),
     );
+  }
+
+  /// [기획/UI 3단계] 홈 화면에서 현재 루틴을 새 템플릿으로 저장 (환류 루프)
+  Future<void> _saveCurrentRoutineAsTemplate(BuildContext context) async {
+    const templateRepo = RoutineTemplateRepository();
+    final defaultConditionStr =
+        state.conditions.map((c) => c.name).join('+');
+    final defaultEnvStr =
+        state.environment == ExerciseEnvironment.gym ? '헬스장' : '홈트';
+    final controller = TextEditingController(
+      text: '$defaultConditionStr $defaultEnvStr 루틴',
+    );
+
+    final prescription = state.prescription!;
+    final templateName = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.bookmark_add_rounded, color: AppColors.primary),
+            SizedBox(width: 8),
+            Text('현재 루틴 템플릿 저장',
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '유산소 ${prescription.aerobic.durationMinutes}분 + 근력 ${prescription.exercises.length}개 종목 (각 ${state.defaultTargetSets}세트) 구성이 템플릿으로 저장됩니다.',
+              style: const TextStyle(fontSize: 12.5, color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: 14),
+            TextField(
+              controller: controller,
+              decoration: const InputDecoration(
+                labelText: '템플릿 이름',
+                border: OutlineInputBorder(),
+                isDense: true,
+              ),
+              autofocus: true,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('취소'),
+          ),
+          FilledButton(
+            onPressed: () {
+              if (controller.text.trim().isNotEmpty) {
+                Navigator.of(ctx).pop(controller.text.trim());
+              }
+            },
+            child: const Text('저장'),
+          ),
+        ],
+      ),
+    );
+
+    if (templateName != null && context.mounted) {
+      final newTemplate = RoutineTemplate(
+        id: 'template_${DateTime.now().millisecondsSinceEpoch}',
+        name: templateName,
+        environment: state.environment,
+        conditionNames: state.conditions.map((c) => c.name).toList(),
+        aerobicType: state.aerobicType,
+        aerobicDurationMinutes: prescription.aerobic.durationMinutes,
+        aerobicTargetSpm: prescription.aerobic.cadenceSpm,
+        selectedExerciseNames:
+            prescription.exercises.map((e) => e.name).toList(),
+        targetSets: state.defaultTargetSets,
+        createdAt: DateTime.now(),
+      );
+
+      await templateRepo.saveTemplate(newTemplate);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                '\'$templateName\' 템플릿이 저장되었습니다! 💾\n다음번에는 1단계 첫 화면에서 바로 시작하실 수 있습니다.'),
+            backgroundColor: AppColors.primary,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 }

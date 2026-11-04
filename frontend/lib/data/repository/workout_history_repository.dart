@@ -36,19 +36,48 @@ class WorkoutHistoryRepository {
   Future<Set<int>> getWeeklyCompletedDays() async {
     final records = await getRecords();
     final now = DateTime.now();
-    // 이번 주 월요일 00:00:00 계산
     final monday = DateTime(now.year, now.month, now.day - (now.weekday - 1));
 
     final completedDays = <int>{};
     for (final r in records) {
-      if (r.completedAt.isAfter(monday)) {
+      if (r.completedAt.isAfter(monday) && !r.isRestDay) {
         completedDays.add(r.completedAt.weekday);
       }
     }
     return completedDays;
   }
 
-  /// 연속 운동 스트릭(Streak) 일수 계산
+  /// 이번 주 (월~일) 안심 휴식일(Rest Day) 요일 세트
+  Future<Set<int>> getWeeklyRestDays() async {
+    final records = await getRecords();
+    final now = DateTime.now();
+    final monday = DateTime(now.year, now.month, now.day - (now.weekday - 1));
+
+    final restDays = <int>{};
+    for (final r in records) {
+      if (r.completedAt.isAfter(monday) && r.isRestDay) {
+        restDays.add(r.completedAt.weekday);
+      }
+    }
+    return restDays;
+  }
+
+  /// 오늘을 '안심 휴식일(Rest Day)'로 저장 (주 1회 회복)
+  Future<void> saveRestDay(List<String> conditions) async {
+    final record = WorkoutRecord(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      completedAt: DateTime.now(),
+      durationMinutes: 0,
+      steps: 0,
+      calories: 0,
+      spm: 0,
+      conditions: conditions,
+      isRestDay: true,
+    );
+    await saveRecord(record);
+  }
+
+  /// 연속 운동 스트릭(Streak) 일수 계산 (안심 휴식일도 스트릭 유지)
   Future<int> getStreak() async {
     final records = await getRecords();
     if (records.isEmpty) return 0;
@@ -64,7 +93,7 @@ class WorkoutHistoryRepository {
     final yesterday = today.subtract(const Duration(days: 1));
 
     if (!dates.contains(today) && !dates.contains(yesterday)) {
-      return 0; // 오늘 또는 어제 운동 기록이 없으면 스트릭 끊김
+      return 0; // 오늘 또는 어제 기록이 없으면 스트릭 끊김
     }
 
     int streak = 0;
@@ -91,5 +120,67 @@ class WorkoutHistoryRepository {
       }
     }
     return total;
+  }
+
+  /// 의료진 제출용 주간 대사 케어 순응도 리포트 데이터
+  Future<Map<String, dynamic>> getWeeklyMedicalReportStats() async {
+    final records = await getRecords();
+    final now = DateTime.now();
+    final monday = DateTime(now.year, now.month, now.day - (now.weekday - 1));
+
+    final weeklyRecords =
+        records.where((r) => r.completedAt.isAfter(monday)).toList();
+
+    int totalMinutes = 0;
+    int totalSteps = 0;
+    int totalStrengthSets = 0;
+    int workoutDaysCount = 0;
+    int restDaysCount = 0;
+    List<int> validSpmList = [];
+    List<int> bloodSugarDrops = [];
+
+    final activeDays = <int>{};
+    for (final r in weeklyRecords) {
+      if (r.isRestDay) {
+        restDaysCount++;
+      } else {
+        totalMinutes += r.durationMinutes;
+        totalSteps += r.steps;
+        if (r.spm > 0) validSpmList.add(r.spm);
+        if (r.completedSets != null) {
+          totalStrengthSets += r.completedSets!;
+        }
+        activeDays.add(r.completedAt.weekday);
+
+        if (r.preBloodSugar != null && r.postBloodSugar != null) {
+          bloodSugarDrops.add(r.preBloodSugar! - r.postBloodSugar!);
+        }
+      }
+    }
+    workoutDaysCount = activeDays.length;
+
+    final avgSpm = validSpmList.isEmpty
+        ? 0
+        : (validSpmList.reduce((a, b) => a + b) / validSpmList.length).round();
+
+    final avgDrop = bloodSugarDrops.isEmpty
+        ? 0
+        : (bloodSugarDrops.reduce((a, b) => a + b) / bloodSugarDrops.length).round();
+
+    // 목표 150분 대비 달성률 (%)
+    final complianceRate = ((totalMinutes / 150.0) * 100).clamp(0, 100).round();
+
+    return {
+      'totalMinutes': totalMinutes,
+      'totalSteps': totalSteps,
+      'targetMinutes': 150,
+      'complianceRate': complianceRate,
+      'workoutDaysCount': workoutDaysCount,
+      'restDaysCount': restDaysCount,
+      'totalStrengthSets': totalStrengthSets,
+      'avgSpm': avgSpm,
+      'avgBloodSugarDrop': avgDrop,
+      'hasBloodSugarData': bloodSugarDrops.isNotEmpty,
+    };
   }
 }

@@ -20,7 +20,11 @@ void main() {
     await tester.tap(find.text('전당뇨'));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('고혈압'));
+    final hypertension = find.text('고혈압');
+    await tester.scrollUntilVisible(hypertension, 200,
+        scrollable: find.byType(Scrollable).first);
+    await tester.pumpAndSettle();
+    await tester.tap(hypertension);
     await tester.pumpAndSettle();
 
     // 3. 1단계 완료: 운동 선별 화면으로 이동
@@ -50,20 +54,20 @@ void main() {
     await tester.tap(exerciseFinder);
     await tester.pumpAndSettle();
 
-    expect(find.text('세트 완료 체크'), findsOneWidget);
-    await tester.tap(find.text('세트 완료 체크'));
+    expect(find.text('탭하여 완료'), findsOneWidget);
+    await tester.tap(find.text('탭하여 완료'));
     await tester.pumpAndSettle();
 
-    expect(find.text('세트 간 호흡 정리 휴식'), findsOneWidget);
+    expect(find.text('세트 간 혈압 안정 휴식'), findsOneWidget);
     expect(find.text('휴식 스킵'), findsOneWidget);
     await tester.tap(find.text('휴식 스킵'));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('나중에 이어서 하기'));
+    await tester.tap(find.text('나중에 이어서 하기 (닫기)'));
     await tester.pumpAndSettle();
 
     // 6. 상단 유산소 영역으로 다시 스크롤 후 Stepper '10분 줄이기' 탭 (40분 -> 30분)
-    final reduceButton = find.byTooltip('10분 줄이기');
+    final reduceButton = find.byTooltip('10분 줄이기 (길게 눌러 연속 조절)');
     await tester.scrollUntilVisible(reduceButton, -250, scrollable: find.byType(Scrollable).first);
     await tester.pumpAndSettle();
     await tester.tap(reduceButton);
@@ -172,7 +176,7 @@ void main() {
     expect(find.text('4세트'), findsWidgets);
 
     // 닫기
-    await tester.tap(find.text('나중에 이어서 하기'));
+    await tester.tap(find.text('나중에 이어서 하기 (닫기)'));
     await tester.pumpAndSettle();
 
     // 홈 화면 전체가 4세트로 일괄 반영되었는지 확인
@@ -182,6 +186,9 @@ void main() {
 
   testWidgets('Step 2: Gym/Home Tab Switch, Exercise Checkbox, and Template Save/Load test',
       (WidgetTester tester) async {
+    await tester.binding.setSurfaceSize(const Size(430, 932));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+
     await tester.pumpWidget(const MyCareApp());
     await tester.pumpAndSettle();
 
@@ -197,15 +204,22 @@ void main() {
     expect(find.text('식후 야외 / 실내 걷기'), findsOneWidget);
 
     // 2. 헬스장 탭으로 전환
-    await tester.tap(find.text('🏋️ 헬스장 (기구 운동)'));
+    await tester.tap(find.textContaining('헬스장'));
     await tester.pumpAndSettle();
 
     // 트레드밀 및 기구 운동 노출 확인
     expect(find.text('트레드밀 (러닝머신 워킹)'), findsOneWidget);
-    expect(find.text('시티드 레그프레스'), findsOneWidget);
 
-    // 3. 템플릿 목록 열기
-    await tester.tap(find.text('템플릿'));
+    final legPress = find.text('시티드 레그프레스');
+    await tester.scrollUntilVisible(legPress, 200, scrollable: find.byType(Scrollable).first);
+    await tester.pumpAndSettle();
+    expect(legPress, findsOneWidget);
+
+    // 3. 템플릿 목록 열기 (상단으로 다시 스크롤)
+    final templateBtn = find.text('템플릿');
+    await tester.scrollUntilVisible(templateBtn, -200, scrollable: find.byType(Scrollable).first);
+    await tester.pumpAndSettle();
+    await tester.tap(templateBtn);
     await tester.pumpAndSettle();
 
     expect(find.text('저장된 루틴 템플릿'), findsOneWidget);
@@ -216,9 +230,8 @@ void main() {
     await tester.tap(applyBtn);
     await tester.pumpAndSettle();
 
-    // 4. 현재 구성을 템플릿으로 저장하기 탭
+    // 4. 현재 구성을 템플릿으로 저장하기 탭 (하단 고정 바)
     final saveTemplateBtn = find.text('현재 구성을 템플릿으로 저장 💾');
-    await tester.scrollUntilVisible(saveTemplateBtn, 200);
     await tester.tap(saveTemplateBtn);
     await tester.pumpAndSettle();
 
@@ -236,6 +249,8 @@ void main() {
 
     // 6. 3단계 홈 진입 확인: 트레드밀 코칭과 헬스장 머신들이 루틴에 배치됨
     expect(find.text('오늘의 운동 처방'), findsOneWidget);
-    expect(find.text('트레드밀 (러닝머신)'), findsOneWidget);
+    await tester.drag(find.byType(ListView).last, const Offset(0, -250));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('트레드밀'), findsWidgets);
   });
 }

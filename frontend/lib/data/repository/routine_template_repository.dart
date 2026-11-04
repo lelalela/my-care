@@ -28,9 +28,8 @@ class RoutineTemplateRepository {
     // 기본 프리셋 템플릿이 없으면 기본 추천 프리셋 2종 추가
     if (templates.isEmpty) {
       final presets = _createDefaultPresets();
-      for (final p in presets) {
-        await saveTemplate(p);
-      }
+      final encodedList = presets.map((p) => jsonEncode(p.toJson())).toList();
+      await prefs.setStringList(_keyTemplates, encodedList);
       return presets;
     }
 

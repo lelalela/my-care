@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../../domain/model/prescription.dart';
 import '../../../ui/app_colors.dart';
 
@@ -84,31 +86,37 @@ class _DailyWorkoutCardState extends State<DailyWorkoutCard> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 36,
-                          height: 36,
-                          decoration: const BoxDecoration(
-                            color: AppColors.primaryContainer,
-                            shape: BoxShape.circle,
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 36,
+                            height: 36,
+                            decoration: const BoxDecoration(
+                              color: AppColors.primaryContainer,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.sports_score_rounded,
+                              color: AppColors.primary,
+                              size: 20,
+                            ),
                           ),
-                          child: const Icon(
-                            Icons.sports_score_rounded,
-                            color: AppColors.primary,
-                            size: 20,
+                          const SizedBox(width: 10),
+                          Flexible(
+                            child: Text(
+                              '오늘의 맞춤 하루 운동 루틴',
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 16,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          '오늘의 맞춤 하루 운동 루틴',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 17,
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
+                    const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 9, vertical: 4),
@@ -218,29 +226,33 @@ class _DailyWorkoutCardState extends State<DailyWorkoutCard> {
                               ),
                             ),
                             const SizedBox(height: 2),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.baseline,
-                              textBaseline: TextBaseline.alphabetic,
-                              children: [
-                                Text(
-                                  '${aerobic.cadenceSpm}',
-                                  style: const TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.w800,
-                                    color: AppColors.primary,
-                                    letterSpacing: -1,
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.baseline,
+                                textBaseline: TextBaseline.alphabetic,
+                                children: [
+                                  Text(
+                                    '${aerobic.cadenceSpm}',
+                                    style: const TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColors.primary,
+                                      letterSpacing: -1,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(width: 4),
-                                const Text(
-                                  'SPM',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.primary,
+                                  const SizedBox(width: 4),
+                                  const Text(
+                                    'SPM',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.primary,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                             Text(
                               '권장: ${aerobic.cadenceMin}~${aerobic.cadenceMax}',
@@ -273,29 +285,33 @@ class _DailyWorkoutCardState extends State<DailyWorkoutCard> {
                               ),
                             ),
                             const SizedBox(height: 2),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.baseline,
-                              textBaseline: TextBaseline.alphabetic,
-                              children: [
-                                Text(
-                                  '${aerobic.speedMin}~${aerobic.speedMax}',
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w800,
-                                    color: AppColors.textPrimary,
-                                    letterSpacing: -0.5,
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.baseline,
+                                textBaseline: TextBaseline.alphabetic,
+                                children: [
+                                  Text(
+                                    '${aerobic.speedMin}~${aerobic.speedMax}',
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColors.textPrimary,
+                                      letterSpacing: -0.5,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(width: 4),
-                                const Text(
-                                  'km/h',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.textSecondary,
+                                  const SizedBox(width: 4),
+                                  const Text(
+                                    'km/h',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.textSecondary,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                             const Text(
                               '중등도 빠른 걸음',
@@ -341,13 +357,16 @@ class _DailyWorkoutCardState extends State<DailyWorkoutCard> {
                       ),
                       Row(
                         children: [
-                          IconButton.filledTonal(
-                            onPressed: _selectedDuration > 10
-                                ? () => setState(() => _selectedDuration -= 10)
-                                : null,
-                            icon: const Icon(Icons.remove, size: 18),
-                            visualDensity: VisualDensity.compact,
-                            tooltip: '10분 줄이기',
+                          _HoldableStepperButton(
+                            icon: Icons.remove,
+                            enabled: _selectedDuration > 10,
+                            tooltip: '10분 줄이기 (길게 눌러 연속 조절)',
+                            onTrigger: () {
+                              if (_selectedDuration > 10) {
+                                HapticFeedback.selectionClick();
+                                setState(() => _selectedDuration -= 10);
+                              }
+                            },
                           ),
                           const SizedBox(width: 12),
                           Text(
@@ -359,13 +378,16 @@ class _DailyWorkoutCardState extends State<DailyWorkoutCard> {
                             ),
                           ),
                           const SizedBox(width: 12),
-                          IconButton.filledTonal(
-                            onPressed: _selectedDuration < 120
-                                ? () => setState(() => _selectedDuration += 10)
-                                : null,
-                            icon: const Icon(Icons.add, size: 18),
-                            visualDensity: VisualDensity.compact,
-                            tooltip: '10분 늘리기',
+                          _HoldableStepperButton(
+                            icon: Icons.add,
+                            enabled: _selectedDuration < 120,
+                            tooltip: '10분 늘리기 (길게 눌러 연속 조절)',
+                            onTrigger: () {
+                              if (_selectedDuration < 120) {
+                                HapticFeedback.selectionClick();
+                                setState(() => _selectedDuration += 10);
+                              }
+                            },
                           ),
                         ],
                       ),
@@ -668,3 +690,65 @@ class _DailyExerciseItemTile extends StatelessWidget {
     );
   }
 }
+
+/// 길게 누르면 연속으로 증감되는 햅틱 스텝퍼 버튼
+class _HoldableStepperButton extends StatefulWidget {
+  const _HoldableStepperButton({
+    required this.icon,
+    required this.enabled,
+    required this.onTrigger,
+    required this.tooltip,
+  });
+
+  final IconData icon;
+  final bool enabled;
+  final VoidCallback onTrigger;
+  final String tooltip;
+
+  @override
+  State<_HoldableStepperButton> createState() => _HoldableStepperButtonState();
+}
+
+class _HoldableStepperButtonState extends State<_HoldableStepperButton> {
+  Timer? _timer;
+
+  void _startHold() {
+    if (!widget.enabled) return;
+    widget.onTrigger();
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(milliseconds: 200), (_) {
+      if (widget.enabled) {
+        widget.onTrigger();
+      } else {
+        _stopHold();
+      }
+    });
+  }
+
+  void _stopHold() {
+    _timer?.cancel();
+    _timer = null;
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onLongPressStart: (_) => _startHold(),
+      onLongPressEnd: (_) => _stopHold(),
+      onLongPressCancel: () => _stopHold(),
+      child: IconButton.filledTonal(
+        onPressed: widget.enabled ? widget.onTrigger : null,
+        icon: Icon(widget.icon, size: 18),
+        visualDensity: VisualDensity.compact,
+        tooltip: widget.tooltip,
+      ),
+    );
+  }
+}
+
