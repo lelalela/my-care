@@ -5,6 +5,7 @@ import '../../domain/model/condition_type.dart';
 import '../../domain/model/prescription.dart';
 import '../../domain/model/routine_template.dart';
 import '../../ui/app_colors.dart';
+import '../common/exercise_detail_dialog.dart';
 import '../home/home_screen.dart';
 
 /// 2단계: 운동 환경(헬스장/홈트) 탭 & 추천 운동 체크리스트 + 템플릿 관리 화면
@@ -999,15 +1000,36 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
                                           ),
                                         ),
                                       ),
-                                      Text(
-                                        exercise.reps.contains('×')
-                                            ? '${exercise.reps.split('×')[0].trim()} × $_targetSets세트'
-                                            : exercise.reps,
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                          color: AppColors.primary,
-                                        ),
+                                      Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            exercise.reps.contains('×')
+                                                ? '${exercise.reps.split('×')[0].trim()} × $_targetSets세트'
+                                                : exercise.reps,
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                              color: AppColors.primary,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 4),
+                                          IconButton(
+                                            icon: const Icon(
+                                              Icons.info_outline_rounded,
+                                              size: 18,
+                                              color: AppColors.primary,
+                                            ),
+                                            tooltip: '자세 및 가이드 보기',
+                                            visualDensity:
+                                                VisualDensity.compact,
+                                            padding: EdgeInsets.zero,
+                                            constraints: const BoxConstraints(),
+                                            onPressed: () =>
+                                                ExerciseDetailDialog.show(
+                                                    context, exercise),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),

@@ -32,6 +32,8 @@ class PrescribedExercise {
     required this.caution,
     this.source,
     this.jointCautions = const [],
+    this.images = const [],
+    this.steps = const [],
   });
 
   final String name;
@@ -42,6 +44,8 @@ class PrescribedExercise {
   final String caution;
   final String? source; // 국민체력100 출처 등
   final List<String> jointCautions; // 'knee', 'back', 'shoulder' 등
+  final List<String> images; // 0.jpg, 1.jpg (시작/수축 자세)
+  final List<String> steps; // 1~3단계 동작 설명
 }
 
 /// 종합 운동 처방 결과 모델

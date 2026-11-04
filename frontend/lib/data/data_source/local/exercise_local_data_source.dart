@@ -84,6 +84,14 @@ class ExerciseLocalDataSource {
               ?.map((e) => e.toString())
               .toList() ??
           <String>[];
+      final imageList = (m['images'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          <String>[];
+      final stepList = (m['steps'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          <String>[];
 
       return PrescribedExercise(
         name: m['name'] as String,
@@ -94,6 +102,8 @@ class ExerciseLocalDataSource {
         caution: m['caution'] as String,
         source: m['source'] as String?,
         jointCautions: jointList,
+        images: imageList,
+        steps: stepList,
       );
     }).toList();
 

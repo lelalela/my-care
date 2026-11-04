@@ -1,148 +1,5 @@
 [
   {
-    "id": "chair_squat",
-    "name": "체어 스쿼트 (의자 스쿼트)",
-    "category": "home_bodyweight",
-    "source": "국민체력100 (어르신·성인 저강도)",
-    "target": "허벅지 & 둔근",
-    "defaultReps": "15회 × 3세트",
-    "benefit": "식후 하체 대근육 수축을 통한 GLUT4 수용체 활성화로 포도당 흡수 촉진",
-    "caution": "앉을 때 엉덩이를 뒤로 빼고 체중을 발뒤꿈치에 실으세요.",
-    "conditions": ["prediabetes", "obesity", "fattyLiver", "dyslipidemia"],
-    "jointCautions": ["knee"],
-    "priority": 1
-  },
-  {
-    "id": "calf_raise",
-    "name": "카프 레이즈 (발뒤꿈치 들기)",
-    "category": "home_bodyweight",
-    "source": "국민체력100 (성인 기초 근력)",
-    "target": "종아리 가자미근",
-    "defaultReps": "20회 × 3세트",
-    "benefit": "가자미근의 인슐린 비의존성 포도당 흡수 촉진 (가자미근 푸시업 효과)",
-    "caution": "균형을 위해 벽이나 의자를 살짝 짚고 안전하게 수행하세요.",
-    "conditions": ["prediabetes", "hypertension", "obesity", "dyslipidemia"],
-    "jointCautions": [],
-    "priority": 1
-  },
-  {
-    "id": "wall_pushup",
-    "name": "월 푸시업 (벽 밀기)",
-    "category": "home_bodyweight",
-    "source": "국민체력100 (상체 기초 근력)",
-    "target": "가슴 & 상체 전반",
-    "defaultReps": "15~20회 × 3세트",
-    "benefit": "가슴 압력(흉압) 상승 부담 없이 혈압을 안정적으로 유지하며 상체 강화",
-    "caution": "머리가 어지럽지 않도록 일정한 리듬으로 후~ 숨을 내쉬며 미세요.",
-    "conditions": ["hypertension", "fattyLiver", "obesity"],
-    "jointCautions": ["shoulder"],
-    "priority": 1
-  },
-  {
-    "id": "wall_sit",
-    "name": "월 싯 (벽 대고 버티기)",
-    "category": "home_bodyweight",
-    "source": "국민체력100 (등척성 하지 근지구력)",
-    "target": "대퇴사두근 & 코어",
-    "defaultReps": "30초 유지 × 3세트",
-    "benefit": "관절 마찰 없는 등척성 수축으로 혈관 내피세포 확장 및 지방 연소 효소 자극",
-    "caution": "무릎 각도가 90도를 넘지 않도록 편안한 높이로 조절하세요.",
-    "conditions": ["fattyLiver", "prediabetes", "hypertension"],
-    "jointCautions": ["knee"],
-    "priority": 2
-  },
-  {
-    "id": "glute_bridge",
-    "name": "글루트 브릿지 (누워서 엉덩이 들기)",
-    "category": "home_bodyweight",
-    "source": "국민체력100 (골반·코어 안정화)",
-    "target": "둔근 & 코어",
-    "defaultReps": "15회 × 3세트",
-    "benefit": "서 있는 무릎/허리 하중 부담 없이 골반과 둔근 대사 활성화",
-    "caution": "허리를 과도하게 꺾지 말고 엉덩이 힘으로 들어 올리세요.",
-    "conditions": ["obesity", "prediabetes", "dyslipidemia"],
-    "jointCautions": ["back"],
-    "priority": 2
-  },
-  {
-    "id": "bird_dog",
-    "name": "버드독 (네발기기 자세 교차 뻗기)",
-    "category": "home_bodyweight",
-    "source": "국민체력100 (척추 코어 안정성)",
-    "target": "허리 기립근 & 복부 코어",
-    "defaultReps": "10회씩 교차 × 3세트",
-    "benefit": "허리 디스크 압박 없이 척추 기립근과 둔근의 혈류 순환 개선",
-    "caution": "팔다리를 높이 들려고 허리를 비틀지 말고 수평까지만 뻗으세요.",
-    "conditions": ["obesity", "fattyLiver", "hypertension"],
-    "jointCautions": ["shoulder", "back"],
-    "priority": 3
-  },
-  {
-    "id": "slow_burpee",
-    "name": "슬로우 버피 (노 점프)",
-    "category": "home_bodyweight",
-    "source": "국민체력100 (전신 유산소 근력)",
-    "target": "전신 유산소 근력",
-    "defaultReps": "10회 × 3세트",
-    "benefit": "점프 충격 없이 안전하게 전신 대사를 끌어올려 HDL 콜레스테롤 증가에 기여",
-    "caution": "손목과 허리에 무리가 가지 않도록 천천히 한 발씩 걸어서 움직이세요.",
-    "conditions": ["dyslipidemia", "fattyLiver"],
-    "jointCautions": ["knee", "back", "shoulder"],
-    "priority": 2
-  },
-  {
-    "id": "tubing_row",
-    "name": "튜빙밴드 로우 (등 당기기)",
-    "category": "home_tool",
-    "source": "국민체력100 (소도구 탄성 저항)",
-    "target": "등 근육 & 견갑대",
-    "defaultReps": "15회 × 3세트",
-    "benefit": "소도구 탄성을 활용해 혈압 급상승 없이 안전하게 상체 후면 칼로리 연소",
-    "caution": "팔꿈치를 몸통 뒤로 부드럽게 당기며 후~ 호흡을 유지하세요.",
-    "conditions": ["fattyLiver", "prediabetes", "hypertension"],
-    "jointCautions": ["shoulder"],
-    "priority": 2
-  },
-  {
-    "id": "band_side_lateral",
-    "name": "밴드 사이드 레터럴 레이즈",
-    "category": "home_tool",
-    "source": "국민체력100 (상체 가동성 운동)",
-    "target": "어깨 측면",
-    "defaultReps": "15회 × 2세트 (저강도)",
-    "benefit": "젖산 분비를 최소화하며 상체 관절 가동성과 순환 유지 (통풍 친화)",
-    "caution": "가벼운 저항 밴드를 사용하여 통증 없는 범위까지만 부드럽게 올리세요.",
-    "conditions": ["gout", "hypertension"],
-    "jointCautions": ["shoulder"],
-    "priority": 1
-  },
-  {
-    "id": "seated_band_leg_extension",
-    "name": "의자 밴드 레그 익스텐션",
-    "category": "home_tool",
-    "source": "국민체력100 (어르신 무릎 강화)",
-    "target": "대퇴사두근",
-    "defaultReps": "15회 × 3세트",
-    "benefit": "의자에 앉아 밴드 저항으로 무릎 관절 부담 없이 허벅지 앞쪽 근육 자극",
-    "caution": "발끝을 몸쪽으로 당긴 상태에서 무릎을 완전히 펴며 1초간 멈춥니다.",
-    "conditions": ["obesity", "prediabetes", "gout"],
-    "jointCautions": [],
-    "priority": 2
-  },
-  {
-    "id": "dumbbell_romanian_deadlift",
-    "name": "덤벨 루마니안 데드리프트",
-    "category": "home_tool",
-    "source": "국민체력100 (성인 후면사슬 근력)",
-    "target": "둔근 & 햄스트링",
-    "defaultReps": "12~15회 × 3세트",
-    "benefit": "신체 후면 대근육 사슬을 가동하여 중성지방 대사 및 전신 칼로리 소비 가속",
-    "caution": "허리를 둥글게 말지 말고 엉덩이를 뒤로 밀어 햄스트링 긴장을 느끼세요.",
-    "conditions": ["dyslipidemia", "fattyLiver", "prediabetes"],
-    "jointCautions": ["back"],
-    "priority": 2
-  },
-  {
     "id": "seated_leg_press",
     "name": "시티드 레그프레스",
     "category": "gym_machine",
@@ -153,7 +10,16 @@
     "caution": "발판을 어깨너비로 편안히 잡고 무릎을 완전히 펴서 잠그지(lock) 마세요.",
     "conditions": ["prediabetes", "fattyLiver", "dyslipidemia"],
     "jointCautions": ["knee"],
-    "priority": 1
+    "priority": 1,
+    "images": [
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leg_Press/0.jpg",
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leg_Press/1.jpg"
+    ],
+    "steps": [
+      "발판 중앙에 발을 어깨너비로 11자로 얹고 등받이에 허리를 밀착합니다.",
+      "안전 레버를 풀고 천천히 숨을 들이마시며 무릎이 90도가 될 때까지 내립니다.",
+      "발뒤꿈치에 힘을 주며 입으로 후~ 숨을 내쉬며 밀어 올립니다. (무릎 다 펴지 않기)"
+    ]
   },
   {
     "id": "lat_pulldown",
@@ -166,7 +32,16 @@
     "caution": "상체를 과도하게 뒤로 젖히지 말고 쇄골 방향으로 가슴을 펴며 당기세요.",
     "conditions": ["prediabetes", "fattyLiver", "dyslipidemia"],
     "jointCautions": ["shoulder"],
-    "priority": 1
+    "priority": 1,
+    "images": [
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Wide-Grip_Lat_Pulldown/0.jpg",
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Wide-Grip_Lat_Pulldown/1.jpg"
+    ],
+    "steps": [
+      "무릎 패드가 허벅지를 단단히 고정하도록 조절하고 어깨너비보다 넓게 바를 잡습니다.",
+      "가슴을 대각선 위로 열며 팔꿈치를 아래로 찍어 누르듯 쇄골 앞까지 당깁니다.",
+      "숨을 내쉬며 당기고, 등을 천천히 늘려주면서 들이마십니다."
+    ]
   },
   {
     "id": "chest_press_machine",
@@ -179,7 +54,16 @@
     "caution": "어깨가 위로 으쓱 올라가지 않게 날개뼈를 등받이에 밀착하세요.",
     "conditions": ["fattyLiver", "prediabetes", "gout"],
     "jointCautions": ["shoulder"],
-    "priority": 1
+    "priority": 1,
+    "images": [
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leverage_Chest_Press/0.jpg",
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leverage_Chest_Press/1.jpg"
+    ],
+    "steps": [
+      "손잡이가 가슴 중앙 높이에 오도록 의자 높이를 맞추고 어깨를 내립니다.",
+      "허리는 살짝 아치를 만들고 날개뼈를 등받이에 고정합니다.",
+      "숨을 내쉬며 손잡이를 앞으로 밀어내고, 천천히 버티며 시작 자세로 돌아옵니다."
+    ]
   },
   {
     "id": "seated_cable_row",
@@ -192,7 +76,16 @@
     "caution": "허리를 과도하게 젖히지 말고 부드럽게 배꼽 쪽으로 당기세요.",
     "conditions": ["hypertension", "fattyLiver"],
     "jointCautions": ["shoulder", "back"],
-    "priority": 2
+    "priority": 2,
+    "images": [
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Cable_Rows/0.jpg",
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Cable_Rows/1.jpg"
+    ],
+    "steps": [
+      "발판에 발을 디디고 무릎을 살짝 구부려 허리를 꼿꼿이 세웁니다.",
+      "어깨를 으쓱거리지 않고 날개뼈를 모으며 그립을 아랫배(배꼽) 쪽으로 당깁니다.",
+      "당길 때 숨을 내쉬고, 팔이 펴질 때 허리가 굽지 않게 버티며 들이마십니다."
+    ]
   },
   {
     "id": "leg_extension_machine",
@@ -205,7 +98,16 @@
     "caution": "힘을 줄 때 반드시 입으로 후~ 숨을 내쉬고 절대 숨을 참지 마세요.",
     "conditions": ["hypertension", "prediabetes"],
     "jointCautions": [],
-    "priority": 1
+    "priority": 1,
+    "images": [
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leg_Extensions/0.jpg",
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leg_Extensions/1.jpg"
+    ],
+    "steps": [
+      "등받이에 엉덩이를 끝까지 붙이고 발목 패드가 정강이 아래에 오도록 맞춥니다.",
+      "손잡이를 잡고 숨을 내쉬며 허벅지 앞쪽 힘으로 다리를 쭉 폅니다.",
+      "꼭대기에서 1초간 멈춘 뒤 천천히 저항을 느끼며 내립니다."
+    ]
   },
   {
     "id": "seated_leg_curl",
@@ -218,7 +120,16 @@
     "caution": "엉덩이가 시트에서 뜨지 않도록 손잡이를 단단히 잡으세요.",
     "conditions": ["obesity", "dyslipidemia", "gout"],
     "jointCautions": [],
-    "priority": 1
+    "priority": 1,
+    "images": [
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Leg_Curl/0.jpg",
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Seated_Leg_Curl/1.jpg"
+    ],
+    "steps": [
+      "무릎 관절 회전축이 머신 회전축과 일치하도록 앉고 허벅지 패드를 고정합니다.",
+      "발목 패드를 아킬레스건 쪽에 위치시킨 뒤 뒤꿈치를 엉덩이 쪽으로 접어 당깁니다.",
+      "접을 때 후~ 숨을 내쉬고, 천천히 버티며 시작 자세로 돌아옵니다."
+    ]
   },
   {
     "id": "seated_calf_raise_machine",
@@ -231,6 +142,257 @@
     "caution": "발끝을 패드 끝에 걸치고 아킬레스건에 무리가 가지 않게 천천히 올리세요.",
     "conditions": ["prediabetes", "hypertension", "obesity"],
     "jointCautions": [],
-    "priority": 2
+    "priority": 2,
+    "images": [
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Seated_Calf_Raise/0.jpg",
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Barbell_Seated_Calf_Raise/1.jpg"
+    ],
+    "steps": [
+      "발앞꿈치 1/3만 발판에 올리고 허벅지 패드를 무릎 위에 편안히 고정합니다.",
+      "발뒤꿈치를 최대한 높게 들어 올리며 종아리 심층부를 강하게 수축합니다.",
+      "올릴 때 숨을 내쉬고, 뒤꿈치를 천천히 내려 가자미근을 스트레칭합니다."
+    ]
+  },
+  {
+    "id": "chair_squat",
+    "name": "체어 스쿼트 (의자 스쿼트)",
+    "category": "home_bodyweight",
+    "source": "국민체력100 (어르신·성인 저강도)",
+    "target": "허벅지 & 둔근",
+    "defaultReps": "15회 × 3세트",
+    "benefit": "식후 하체 대근육 수축을 통한 GLUT4 수용체 활성화로 포도당 흡수 촉진",
+    "caution": "앉을 때 엉덩이를 뒤로 빼고 체중을 발뒤꿈치에 실으세요.",
+    "conditions": ["prediabetes", "obesity", "fattyLiver", "dyslipidemia"],
+    "jointCautions": ["knee"],
+    "priority": 1,
+    "images": [
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bodyweight_Squat/0.jpg",
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bodyweight_Squat/1.jpg"
+    ],
+    "steps": [
+      "안정된 의자 앞에 서서 발을 어깨너비로 벌리고 양손은 가슴 앞에 모읍니다.",
+      "엉덩이를 뒤로 빼며 의자에 살짝 엉덩이가 닿을 때까지 앉습니다. (쿵 주저앉지 않기)",
+      "발뒤꿈치로 바닥을 밀며 일어서고 완전히 서서 엉덩이를 조여줍니다."
+    ]
+  },
+  {
+    "id": "calf_raise",
+    "name": "카프 레이즈 (발뒤꿈치 들기)",
+    "category": "home_bodyweight",
+    "source": "국민체력100 (성인 기초 근력)",
+    "target": "종아리 가자미근",
+    "defaultReps": "20회 × 3세트",
+    "benefit": "가자미근의 인슐린 비의존성 포도당 흡수 촉진 (가자미근 푸시업 효과)",
+    "caution": "균형을 위해 벽이나 의자를 살짝 짚고 안전하게 수행하세요.",
+    "conditions": ["prediabetes", "hypertension", "obesity", "dyslipidemia"],
+    "jointCautions": [],
+    "priority": 1,
+    "images": [
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Calf_Raises/0.jpg",
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Standing_Calf_Raises/1.jpg"
+    ],
+    "steps": [
+      "벽이나 의자 등받이를 가볍게 짚고 양발을 골반 너비로 평행하게 섭니다.",
+      "발뒤꿈치를 바닥에서 힘차게 들어 올려 종아리에 힘을 줍니다.",
+      "2초간 멈춘 뒤 발뒤꿈치가 바닥에 닿기 직전까지 천천히 내립니다."
+    ]
+  },
+  {
+    "id": "wall_pushup",
+    "name": "월 푸시업 (벽 밀기)",
+    "category": "home_bodyweight",
+    "source": "국민체력100 (상체 기초 근력)",
+    "target": "가슴 & 상체 전반",
+    "defaultReps": "15~20회 × 3세트",
+    "benefit": "가슴 압력(흉압) 상승 부담 없이 혈압을 안정적으로 유지하며 상체 강화",
+    "caution": "머리가 어지럽지 않도록 일정한 리듬으로 후~ 숨을 내쉬며 미세요.",
+    "conditions": ["hypertension", "fattyLiver", "obesity"],
+    "jointCautions": ["shoulder"],
+    "priority": 1,
+    "images": [
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Pushups/0.jpg",
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Pushups/1.jpg"
+    ],
+    "steps": [
+      "벽에서 한 걸음 떨어져 서서 손바닥을 어깨높이와 너비로 벽에 댑니다.",
+      "몸을 일직선으로 유지한 채 팔꿈치를 구부려 가슴이 벽에 가까워지게 합니다.",
+      "벽을 밀어내며 입으로 숨을 내쉬고 시작 자세로 돌아옵니다."
+    ]
+  },
+  {
+    "id": "wall_sit",
+    "name": "월 싯 (벽 대고 버티기)",
+    "category": "home_bodyweight",
+    "source": "국민체력100 (등척성 하지 근지구력)",
+    "target": "대퇴사두근 & 코어",
+    "defaultReps": "30초 유지 × 3세트",
+    "benefit": "관절 마찰 없는 등척성 수축으로 혈관 내피세포 확장 및 지방 연소 효소 자극",
+    "caution": "무릎 각도가 90도를 넘지 않도록 편안한 높이로 조절하세요.",
+    "conditions": ["fattyLiver", "prediabetes", "hypertension"],
+    "jointCautions": ["knee"],
+    "priority": 2,
+    "images": [
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bodyweight_Squat/0.jpg",
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Bodyweight_Squat/1.jpg"
+    ],
+    "steps": [
+      "벽에 등을 기댄 채 발을 앞으로 두 걸음 내딛습니다.",
+      "벽을 타고 미끄러지듯 내려와 무릎이 편안한 각도(약 70~90도)가 되게 합니다.",
+      "손은 허벅지나 벽에 두고 숨을 참지 않으며 정해진 시간 동안 버팁니다."
+    ]
+  },
+  {
+    "id": "glute_bridge",
+    "name": "글루트 브릿지 (누워서 엉덩이 들기)",
+    "category": "home_bodyweight",
+    "source": "국민체력100 (골반·코어 안정화)",
+    "target": "둔근 & 코어",
+    "defaultReps": "15회 × 3세트",
+    "benefit": "서 있는 무릎/허리 하중 부담 없이 골반과 둔근 대사 활성화",
+    "caution": "허리를 과도하게 꺾지 말고 엉덩이 힘으로 들어 올리세요.",
+    "conditions": ["obesity", "prediabetes", "dyslipidemia"],
+    "jointCautions": ["back"],
+    "priority": 2,
+    "images": [
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Butt_Lift_Bridge/0.jpg",
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Butt_Lift_Bridge/1.jpg"
+    ],
+    "steps": [
+      "매트에 등을 대고 누워 무릎을 세우고 발은 골반 너비로 바닥에 둡니다.",
+      "발뒤꿈치를 누르며 골반과 엉덩이를 천장 쪽으로 천천히 들어 올립니다.",
+      "어깨부터 무릎까지 일직선이 되면 엉덩이를 1초 쥐어짜고 천천히 내립니다."
+    ]
+  },
+  {
+    "id": "bird_dog",
+    "name": "버드독 (네발기기 자세 교차 뻗기)",
+    "category": "home_bodyweight",
+    "source": "국민체력100 (척추 코어 안정성)",
+    "target": "허리 기립근 & 복부 코어",
+    "defaultReps": "10회씩 교차 × 3세트",
+    "benefit": "허리 디스크 압박 없이 척추 기립근과 둔근의 혈류 순환 개선",
+    "caution": "팔다리를 높이 들려고 허리를 비틀지 말고 수평까지만 뻗으세요.",
+    "conditions": ["obesity", "fattyLiver", "hypertension"],
+    "jointCautions": ["shoulder", "back"],
+    "priority": 3,
+    "images": [
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Superman/0.jpg",
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Superman/1.jpg"
+    ],
+    "steps": [
+      "네발기기 자세로 엎드려 어깨 아래 손목, 골반 아래 무릎을 둡니다.",
+      "오른팔과 왼다리를 바닥과 평행이 되도록 길게 뻗습니다.",
+      "허리가 꺾이지 않게 복부에 힘을 주고 2초 버틴 후 반대쪽을 수행합니다."
+    ]
+  },
+  {
+    "id": "slow_burpee",
+    "name": "슬로우 버피 (노 점프)",
+    "category": "home_bodyweight",
+    "source": "국민체력100 (전신 유산소 근력)",
+    "target": "전신 유산소 근력",
+    "defaultReps": "10회 × 3세트",
+    "benefit": "점프 충격 없이 안전하게 전신 대사를 끌어올려 HDL 콜레스테롤 증가에 기여",
+    "caution": "손목과 허리에 무리가 가지 않도록 천천히 한 발씩 걸어서 움직이세요.",
+    "conditions": ["dyslipidemia", "fattyLiver"],
+    "jointCautions": ["knee", "back", "shoulder"],
+    "priority": 2,
+    "images": [
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Pushups/0.jpg",
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Pushups/1.jpg"
+    ],
+    "steps": [
+      "바르게 서서 무릎을 굽히고 양손으로 바닥을 짚습니다.",
+      "점프하지 않고 한 발씩 뒤로 뻗어 플랭크 자세를 만듭니다.",
+      "다시 한 발씩 가슴 쪽으로 끌어온 후 바르게 일어섭니다."
+    ]
+  },
+  {
+    "id": "tubing_row",
+    "name": "튜빙밴드 로우 (등 당기기)",
+    "category": "home_tool",
+    "source": "국민체력100 (소도구 탄성 저항)",
+    "target": "등 근육 & 견갑대",
+    "defaultReps": "15회 × 3세트",
+    "benefit": "소도구 탄성을 활용해 혈압 급상승 없이 안전하게 상체 후면 칼로리 연소",
+    "caution": "팔꿈치를 몸통 뒤로 부드럽게 당기며 후~ 호흡을 유지하세요.",
+    "conditions": ["fattyLiver", "prediabetes", "hypertension"],
+    "jointCautions": ["shoulder"],
+    "priority": 2,
+    "images": [
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Upright_Row_-_With_Bands/0.jpg",
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Upright_Row_-_With_Bands/1.jpg"
+    ],
+    "steps": [
+      "밴드 중앙을 발로 밟거나 기둥에 걸고 양 끝을 잡습니다.",
+      "가슴을 펴고 팔꿈치를 몸통 뒤로 당기며 등 날개뼈를 조입니다.",
+      "숨을 내쉬며 당기고, 밴드의 탄성을 버티며 천천히 돌아옵니다."
+    ]
+  },
+  {
+    "id": "band_side_lateral",
+    "name": "밴드 사이드 레터럴 레이즈",
+    "category": "home_tool",
+    "source": "국민체력100 (상체 가동성 운동)",
+    "target": "어깨 측면",
+    "defaultReps": "15회 × 2세트 (저강도)",
+    "benefit": "젖산 분비를 최소화하며 상체 관절 가동성과 순환 유지 (통풍 친화)",
+    "caution": "가벼운 저항 밴드를 사용하여 통증 없는 범위까지만 부드럽게 올리세요.",
+    "conditions": ["gout", "hypertension"],
+    "jointCautions": ["shoulder"],
+    "priority": 1,
+    "images": [
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Side_Lateral_Raise/0.jpg",
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Side_Lateral_Raise/1.jpg"
+    ],
+    "steps": [
+      "밴드를 발로 밟고 양손으로 가볍게 손잡이를 잡습니다.",
+      "팔꿈치를 살짝 굽힌 상태로 어깨높이까지만 옆으로 들어 올립니다.",
+      "올릴 때 숨을 내쉬고 천천히 버티며 시작 자세로 내립니다."
+    ]
+  },
+  {
+    "id": "seated_band_leg_extension",
+    "name": "의자 밴드 레그 익스텐션",
+    "category": "home_tool",
+    "source": "국민체력100 (어르신 무릎 강화)",
+    "target": "대퇴사두근",
+    "defaultReps": "15회 × 3세트",
+    "benefit": "의자에 앉아 밴드 저항으로 무릎 관절 부담 없이 허벅지 앞쪽 근육 자극",
+    "caution": "발끝을 몸쪽으로 당긴 상태에서 무릎을 완전히 펴며 1초간 멈춥니다.",
+    "conditions": ["obesity", "prediabetes", "gout"],
+    "jointCautions": [],
+    "priority": 2,
+    "images": [
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leg_Extensions/0.jpg",
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Leg_Extensions/1.jpg"
+    ],
+    "steps": [
+      "의자 다리와 발목에 밴드를 감고 의자에 바르게 앉습니다.",
+      "발끝을 몸쪽으로 당기며 무릎을 앞으로 쭉 폅니다.",
+      "허벅지 앞쪽 긴장을 1초 느끼고 천천히 원래대로 내립니다."
+    ]
+  },
+  {
+    "id": "dumbbell_romanian_deadlift",
+    "name": "덤벨 루마니안 데드리프트",
+    "category": "home_tool",
+    "source": "국민체력100 (성인 후면사슬 근력)",
+    "target": "둔근 & 햄스트링",
+    "defaultReps": "12~15회 × 3세트",
+    "benefit": "신체 후면 대근육 사슬을 가동하여 중성지방 대사 및 전신 칼로리 소비 가속",
+    "caution": "허리를 둥글게 말지 말고 엉덩이를 뒤로 밀어 햄스트링 긴장을 느끼세요.",
+    "conditions": ["dyslipidemia", "fattyLiver", "prediabetes"],
+    "jointCautions": ["back"],
+    "priority": 2,
+    "images": [
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Romanian_Deadlift/0.jpg",
+      "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/Romanian_Deadlift/1.jpg"
+    ],
+    "steps": [
+      "가벼운 덤벨을 허벅지 앞에 두고 어깨너비로 바르게 섭니다.",
+      "무릎을 살짝만 굽힌 채 엉덩이를 뒤로 밀며 상체를 숙입니다.",
+      "허벅지 뒤쪽이 당길 때 발뒤꿈치를 밀며 엉덩이 힘으로 일어섭니다."
+    ]
   }
 ]

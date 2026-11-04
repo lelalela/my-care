@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../domain/model/prescription.dart';
 import '../../../ui/app_colors.dart';
+import '../../common/exercise_detail_dialog.dart';
 
 /// 오늘의 맞춤 하루 운동 루틴 (유산소 1단계 + 근력 2단계 통합 카드)
 class DailyWorkoutCard extends StatefulWidget {
@@ -603,21 +604,39 @@ class _DailyExerciseItemTile extends StatelessWidget {
                     ),
                   ),
                 ),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryContainer.withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    formattedReps,
-                    style: const TextStyle(
-                      fontSize: 11.5,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.primary,
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryContainer.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        formattedReps,
+                        style: const TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.primary,
+                        ),
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 4),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.info_outline_rounded,
+                        size: 18,
+                        color: AppColors.primary,
+                      ),
+                      tooltip: '자세 및 가이드 보기',
+                      visualDensity: VisualDensity.compact,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      onPressed: () => ExerciseDetailDialog.show(context, item),
+                    ),
+                  ],
                 ),
               ],
             ),
