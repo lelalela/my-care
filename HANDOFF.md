@@ -1,6 +1,6 @@
 # HANDOFF: My-Care Project Status & Guide
 
-> **문서 버전**: v1.1  
+> **문서 버전**: v1.2  
 > **작성 시점**: 2026-11-04 (갱신)  
 > **현재 브랜치**: `main`  
 > **원격 저장소**: https://github.com/lelalela/my-care  
@@ -80,9 +80,9 @@
 9. **Android 에뮬레이터(Pixel API 35) 실기기 빌드 및 런타임 검증 완료**:
    - `flutter analyze` 0 warnings, `flutter test` 100% 통과, `pytest` 3/3 통과
    - 에뮬레이터에서 온보딩 ➡️ 홈 대시보드 ➡️ 워킹 코칭 ➡️ 운동 완료 전체 플로우 검증 완료
-10. **3단계 운동 여정 & KSPO 운동 콘텐츠 (18종)**:
+10. **3단계 운동 여정 & KSPO 운동 콘텐츠 (35종)**:
     - 1단계 질환 선택 → 2단계 헬스장/홈트 탭별 운동 선별·템플릿 저장/불러오기 → 3단계 홈 실천 (`frontend/lib/presentation/selection/`, `onboarding/`)
-    - [frontend/assets/data/exercise_database.json](frontend/assets/data/exercise_database.json): 기구·맨몸·소도구 **18종**
+    - [frontend/assets/data/exercise_database.json](frontend/assets/data/exercise_database.json): 기구·맨몸·소도구 **35종** (관절 보호·직장인 스트레칭·짐볼/폼롤러·밴드 하지 등 확장)
     - 전 종목 **국민체력100(KSPO) 공식 YouTube** 링크, 2컷 자세 GIF, 3단계 자세 가이드 모달 (`exercise_detail_dialog.dart`)
     - Android 외부 URL `queries` 및 `launchUrl` 폴백 (`AndroidManifest.xml`)
 11. **근력 세트 트래커 & 세트 간 휴식 타이머 (현장 UX)**:
@@ -145,14 +145,10 @@ git push origin v1.0.1
 
 ### 우선 추천
 
-1. **운동 DB 확장 (18 → 30~35종)**  
-   - 관절 보호(누워서 코어/하지, 수건 스트레칭), 직장인 의자 스트레칭, 폼롤러·짐볼 등  
-   - 기존과 동일 패턴: KSPO 공식 영상 URL + GIF + 3단계 가이드 → `exercise_database.json`
-
-2. **문서 동기화**  
+1. **문서 동기화**  
    - [docs/PRD.md](docs/PRD.md) 로드맵(M1~M5) 체크박스를 현재 구현 수준에 맞게 갱신
 
-3. **iOS 배포 준비 (선택)**  
+2. **iOS 배포 준비 (선택)**  
    - 현재 CI iOS 산출물은 **무서명** `Runner.app.zip` (검증·아카이브용)  
    - TestFlight/실기기 배포 시 Apple 인증서·프로비저닝 + `mobile-release.yml` 서명 단계 추가
 
@@ -161,3 +157,4 @@ git push origin v1.0.1
 - 워킹 SPM **시각 메트로놈**, 타이머, 완료 사운드·햅틱 → §3-7  
 - FastAPI ↔ Flutter `/api/recommend` + 로컬 폴백 → §3-8  
 - 세트 간 **60초 휴식 타이머** → §3-11  
+- **운동 DB 35종** (KSPO 영상·3단계 가이드) → §3-10  
