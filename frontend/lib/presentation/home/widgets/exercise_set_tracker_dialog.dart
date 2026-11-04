@@ -4,17 +4,22 @@ import 'package:flutter/services.dart';
 import '../../../core/services/feedback_service.dart';
 import '../../../domain/model/prescription.dart';
 import '../../../ui/app_colors.dart';
+import 'set_count_input_dialog.dart';
 
 /// 근력 운동 세트별 체크리스트 & 60초 휴식 타이머 시트
 class ExerciseSetTrackerDialog extends StatefulWidget {
   const ExerciseSetTrackerDialog({
     super.key,
     required this.exercise,
+    required this.targetSets,
     required this.onExerciseCompleted,
+    required this.onUpdateTargetSets,
   });
 
   final PrescribedExercise exercise;
-  final VoidCallback onExerciseCompleted;
+  final int targetSets;
+  final ValueChanged<int> onExerciseCompleted;
+  final void Function(int newSets, bool applyToAll) onUpdateTargetSets;
 
   @override
   State<ExerciseSetTrackerDialog> createState() =>
@@ -22,7 +27,7 @@ class ExerciseSetTrackerDialog extends StatefulWidget {
 }
 
 class _ExerciseSetTrackerDialogState extends State<ExerciseSetTrackerDialog> {
-  final int _totalSets = 3;
+  late int _totalSets;
   int _completedSets = 0;
   bool _isResting = false;
   int _restSecondsRemaining = 60;
@@ -32,6 +37,7 @@ class _ExerciseSetTrackerDialogState extends State<ExerciseSetTrackerDialog> {
   @override
   void initState() {
     super.initState();
+    _totalSets = widget.targetSets;
     _feedbackService = FeedbackService();
   }
 
@@ -40,6 +46,29 @@ class _ExerciseSetTrackerDialogState extends State<ExerciseSetTrackerDialog> {
     _restTimer?.cancel();
     _feedbackService.dispose();
     super.dispose();
+  }
+
+  Future<void> _openChangeTargetSets() async {
+    final result = await SetCountInputDialog.show(
+      context,
+      initialSets: _totalSets,
+      exerciseName: widget.exercise.name,
+      showApplyToAll: true,
+    );
+
+    if (result != null && mounted) {
+      setState(() {
+        _totalSets = result.sets;
+      });
+      widget.onUpdateTargetSets(result.sets, result.applyToAll);
+
+      if (_completedSets >= _totalSets) {
+        _restTimer?.cancel();
+        _isResting = false;
+        _feedbackService.playCompletionFeedback();
+        widget.onExerciseCompleted(_completedSets);
+      }
+    }
   }
 
   void _onSetCompleted(int setNumber) {
@@ -56,7 +85,7 @@ class _ExerciseSetTrackerDialogState extends State<ExerciseSetTrackerDialog> {
       // 모든 세트 완료!
       _restTimer?.cancel();
       _feedbackService.playCompletionFeedback();
-      widget.onExerciseCompleted();
+      widget.onExerciseCompleted(_completedSets);
     }
   }
 
@@ -145,7 +174,9 @@ class _ExerciseSetTrackerDialogState extends State<ExerciseSetTrackerDialog> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  ex.reps,
+                  ex.reps.contains('×')
+                      ? '${ex.reps.split('×')[0].trim()} × $_totalSets세트'
+                      : ex.reps,
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -156,13 +187,46 @@ class _ExerciseSetTrackerDialogState extends State<ExerciseSetTrackerDialog> {
             ],
           ),
           const SizedBox(height: 6),
-          Text(
-            ex.target,
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textSecondary,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                ex.target,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              InkWell(
+                onTap: _openChangeTargetSets,
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: AppColors.surfaceContainerHigh,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: AppColors.outlineVariant),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.tune_rounded,
+                          size: 13, color: AppColors.primary),
+                      const SizedBox(width: 4),
+                      Text(
+                        '목표 $_totalSets세트 (변경)',
+                        style: const TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 12),
 
@@ -375,10 +439,10 @@ class _ExerciseSetTrackerDialogState extends State<ExerciseSetTrackerDialog> {
                 color: AppColors.secondaryContainer.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Center(
+              child: Center(
                 child: Text(
-                  '🎉 3세트를 모두 완수하셨습니다!',
-                  style: TextStyle(
+                  '🎉 $_totalSets세트를 모두 완수하셨습니다!',
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: AppColors.secondary,

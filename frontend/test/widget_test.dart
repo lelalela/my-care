@@ -100,4 +100,69 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('오늘의 운동 처방'), findsOneWidget);
   });
+
+  testWidgets('Dynamic Set Configuration & Batch Apply test', (WidgetTester tester) async {
+    await tester.pumpWidget(const MyCareApp());
+    await tester.pumpAndSettle();
+
+    // 질환 선택 후 홈 진입
+    await tester.tap(find.text('전당뇨'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('1개 질환 맞춤 운동 처방 받기'));
+    await tester.pumpAndSettle();
+
+    // 근력 루틴 헤더로 스크롤
+    final routineTitle = find.text('오늘의 맞춤 근력 루틴');
+    await tester.scrollUntilVisible(routineTitle, 250, scrollable: find.byType(Scrollable).first);
+    await tester.pumpAndSettle();
+
+    // 1. 초기 상태: 기본 3세트 확인
+    expect(find.text('전체 3세트'), findsOneWidget);
+
+    // 2. 헤더의 '전체 3세트' 탭하여 일괄 2세트로 변경
+    await tester.tap(find.text('전체 3세트'));
+    await tester.pumpAndSettle();
+    expect(find.text('목표 세트 일괄 설정'), findsOneWidget);
+
+    // 2세트 프리셋 칩 탭
+    await tester.tap(find.text('2세트'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('적용하기'));
+    await tester.pumpAndSettle();
+
+    // 3. 헤더 및 카드 텍스트가 2세트로 일괄 변경되었는지 검증
+    expect(find.text('전체 2세트'), findsOneWidget);
+    expect(find.textContaining('× 2세트'), findsWidgets);
+
+    // 4. 특정 운동 진입 후 4세트로 변경 및 '일괄 적용' 체크
+    final exerciseFinder = find.text('세트 시작 ⏱️').first;
+    await tester.tap(exerciseFinder);
+    await tester.pumpAndSettle();
+
+    expect(find.text('목표 2세트 (변경)'), findsOneWidget);
+    await tester.tap(find.text('목표 2세트 (변경)'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('목표 세트 변경'), findsOneWidget);
+    await tester.tap(find.text('4세트'));
+    await tester.pumpAndSettle();
+
+    // '오늘 모든 근력 운동에 일괄 적용' 체크
+    await tester.tap(find.text('오늘 모든 근력 운동에 일괄 적용'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('적용하기'));
+    await tester.pumpAndSettle();
+
+    // 다이얼로그 내 4세트로 늘어났는지 확인 (1세트 ~ 4세트)
+    expect(find.text('4세트'), findsWidgets);
+
+    // 닫기
+    await tester.tap(find.text('나중에 이어서 하기'));
+    await tester.pumpAndSettle();
+
+    // 홈 화면 전체가 4세트로 일괄 반영되었는지 확인
+    expect(find.text('전체 4세트'), findsOneWidget);
+    expect(find.textContaining('× 4세트'), findsWidgets);
+  });
 }

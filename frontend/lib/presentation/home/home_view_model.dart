@@ -14,6 +14,8 @@ class HomeState {
     this.completedWeekdays = const <int>{},
     this.weeklyMinutes = 0,
     this.records = const <WorkoutRecord>[],
+    this.defaultTargetSets = 3,
+    this.customExerciseSets = const <String, int>{},
     this.isLoading = false,
   });
 
@@ -24,7 +26,13 @@ class HomeState {
   final Set<int> completedWeekdays;
   final int weeklyMinutes;
   final List<WorkoutRecord> records;
+  final int defaultTargetSets;
+  final Map<String, int> customExerciseSets;
   final bool isLoading;
+
+  int getTargetSetsFor(String exerciseName) {
+    return customExerciseSets[exerciseName] ?? defaultTargetSets;
+  }
 
   HomeState copyWith({
     Set<ConditionType>? conditions,
@@ -34,6 +42,8 @@ class HomeState {
     Set<int>? completedWeekdays,
     int? weeklyMinutes,
     List<WorkoutRecord>? records,
+    int? defaultTargetSets,
+    Map<String, int>? customExerciseSets,
     bool? isLoading,
   }) {
     return HomeState(
@@ -44,6 +54,8 @@ class HomeState {
       completedWeekdays: completedWeekdays ?? this.completedWeekdays,
       weeklyMinutes: weeklyMinutes ?? this.weeklyMinutes,
       records: records ?? this.records,
+      defaultTargetSets: defaultTargetSets ?? this.defaultTargetSets,
+      customExerciseSets: customExerciseSets ?? this.customExerciseSets,
       isLoading: isLoading ?? this.isLoading,
     );
   }
@@ -59,6 +71,22 @@ final class LoadPrescriptionAction extends HomeAction {
 
 final class RefreshHistoryAction extends HomeAction {
   const RefreshHistoryAction();
+}
+
+final class UpdateGlobalTargetSetsAction extends HomeAction {
+  const UpdateGlobalTargetSetsAction(this.targetSets);
+  final int targetSets;
+}
+
+final class UpdateExerciseTargetSetsAction extends HomeAction {
+  const UpdateExerciseTargetSetsAction({
+    required this.exerciseName,
+    required this.targetSets,
+    required this.applyToAll,
+  });
+  final String exerciseName;
+  final int targetSets;
+  final bool applyToAll;
 }
 
 class HomeViewModel extends ChangeNotifier {
@@ -88,6 +116,28 @@ class HomeViewModel extends ChangeNotifier {
         _loadPrescription();
       case RefreshHistoryAction():
         _loadHistory();
+      case UpdateGlobalTargetSetsAction(:final targetSets):
+        _state = _state.copyWith(
+          defaultTargetSets: targetSets,
+          customExerciseSets: {},
+        );
+        notifyListeners();
+      case UpdateExerciseTargetSetsAction(
+          :final exerciseName,
+          :final targetSets,
+          :final applyToAll
+        ):
+        if (applyToAll) {
+          _state = _state.copyWith(
+            defaultTargetSets: targetSets,
+            customExerciseSets: {},
+          );
+        } else {
+          final updated = Map<String, int>.from(_state.customExerciseSets);
+          updated[exerciseName] = targetSets;
+          _state = _state.copyWith(customExerciseSets: updated);
+        }
+        notifyListeners();
     }
   }
 
@@ -122,14 +172,18 @@ class HomeViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> logStrengthWorkout(PrescribedExercise exercise) async {
+  Future<void> logStrengthWorkout(PrescribedExercise exercise, [int completedSets = 3]) async {
     final now = DateTime.now();
+    // 세트 수에 비례한 운동 시간 산출 (세트당 약 3분)
+    final duration = (completedSets * 3).clamp(5, 60);
+    final calories = completedSets * 12;
+
     final record = WorkoutRecord(
       id: 'strength_${now.millisecondsSinceEpoch}',
       completedAt: now,
-      durationMinutes: 10,
+      durationMinutes: duration,
       steps: 0,
-      calories: 35,
+      calories: calories,
       spm: 0,
       conditions: _state.conditions.map((c) => c.name).toList(),
     );

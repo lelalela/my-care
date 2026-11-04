@@ -8,6 +8,7 @@ import 'widgets/aerobic_card.dart';
 import 'widgets/exercise_routine_card.dart';
 import 'widgets/exercise_set_tracker_dialog.dart';
 import 'widgets/safety_warning_card.dart';
+import 'widgets/set_count_input_dialog.dart';
 import 'widgets/weekly_streak_card.dart';
 
 /// Home Root: ViewModel 주입 및 상태 구독
@@ -83,7 +84,7 @@ class HomeScreen extends StatelessWidget {
   final HomeState state;
   final ValueChanged<HomeAction> onAction;
   final VoidCallback onEditProfile;
-  final ValueChanged<PrescribedExercise> onLogStrength;
+  final void Function(PrescribedExercise exercise, [int sets]) onLogStrength;
   final VoidCallback onRefreshHistory;
 
   @override
@@ -205,9 +206,12 @@ class HomeScreen extends StatelessWidget {
             // 3. 오늘의 맞춤 근력 / 홈트 루틴 카드 목록 (세트 체크리스트 연결)
             ExerciseRoutineCard(
               exercises: prescription.exercises,
+              defaultTargetSets: state.defaultTargetSets,
+              customExerciseSets: state.customExerciseSets,
               onExerciseTapped: (exercise) {
                 _openExerciseTracker(context, exercise);
               },
+              onConfigureGlobalSets: () => _openGlobalSetDialog(context),
             ),
             const SizedBox(height: 24),
 
@@ -220,7 +224,20 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  Future<void> _openGlobalSetDialog(BuildContext context) async {
+    final result = await SetCountInputDialog.show(
+      context,
+      initialSets: state.defaultTargetSets,
+      showApplyToAll: false,
+    );
+    if (result != null) {
+      onAction(UpdateGlobalTargetSetsAction(result.sets));
+    }
+  }
+
   void _openExerciseTracker(BuildContext context, PrescribedExercise exercise) {
+    final targetSets = state.getTargetSetsFor(exercise.name);
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -229,7 +246,17 @@ class HomeScreen extends StatelessWidget {
       ),
       builder: (ctx) => ExerciseSetTrackerDialog(
         exercise: exercise,
-        onExerciseCompleted: () => onLogStrength(exercise),
+        targetSets: targetSets,
+        onExerciseCompleted: (sets) => onLogStrength(exercise, sets),
+        onUpdateTargetSets: (newSets, applyToAll) {
+          onAction(
+            UpdateExerciseTargetSetsAction(
+              exerciseName: exercise.name,
+              targetSets: newSets,
+              applyToAll: applyToAll,
+            ),
+          );
+        },
       ),
     );
   }

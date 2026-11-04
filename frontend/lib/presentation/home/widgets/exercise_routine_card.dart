@@ -7,11 +7,17 @@ class ExerciseRoutineCard extends StatelessWidget {
   const ExerciseRoutineCard({
     super.key,
     required this.exercises,
+    required this.defaultTargetSets,
+    required this.customExerciseSets,
     required this.onExerciseTapped,
+    required this.onConfigureGlobalSets,
   });
 
   final List<PrescribedExercise> exercises;
+  final int defaultTargetSets;
+  final Map<String, int> customExerciseSets;
   final ValueChanged<PrescribedExercise> onExerciseTapped;
+  final VoidCallback onConfigureGlobalSets;
 
   @override
   Widget build(BuildContext context) {
@@ -30,23 +36,50 @@ class ExerciseRoutineCard extends StatelessWidget {
                 fontSize: 17,
               ),
             ),
-            Text(
-              '${exercises.length}개 종목',
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: AppColors.primary,
-              ),
+            Row(
+              children: [
+                Text(
+                  '${exercises.length}개 종목',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                ActionChip(
+                  avatar: const Icon(
+                    Icons.tune_rounded,
+                    size: 14,
+                    color: AppColors.primary,
+                  ),
+                  label: Text('전체 $defaultTargetSets세트'),
+                  visualDensity: VisualDensity.compact,
+                  backgroundColor: AppColors.surfaceContainerHigh,
+                  side: const BorderSide(
+                    color: AppColors.primaryContainer,
+                    width: 1.2,
+                  ),
+                  labelStyle: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primary,
+                  ),
+                  onPressed: onConfigureGlobalSets,
+                ),
+              ],
             ),
           ],
         ),
         const SizedBox(height: 12),
-        ...exercises.map(
-          (item) => _ExerciseItemTile(
+        ...exercises.map((item) {
+          final targetSets = customExerciseSets[item.name] ?? defaultTargetSets;
+          return _ExerciseItemTile(
             item: item,
+            targetSets: targetSets,
             onTap: () => onExerciseTapped(item),
-          ),
-        ),
+          );
+        }),
       ],
     );
   }
@@ -55,11 +88,21 @@ class ExerciseRoutineCard extends StatelessWidget {
 class _ExerciseItemTile extends StatelessWidget {
   const _ExerciseItemTile({
     required this.item,
+    required this.targetSets,
     required this.onTap,
   });
 
   final PrescribedExercise item;
+  final int targetSets;
   final VoidCallback onTap;
+
+  String _formatReps(String rawReps, int sets) {
+    if (rawReps.contains('×')) {
+      final base = rawReps.split('×')[0].trim();
+      return '$base × $sets세트';
+    }
+    return rawReps;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +140,7 @@ class _ExerciseItemTile extends StatelessWidget {
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    item.reps,
+                    _formatReps(item.reps, targetSets),
                     style: const TextStyle(
                       fontSize: 11.5,
                       fontWeight: FontWeight.w700,
