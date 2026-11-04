@@ -1,8 +1,8 @@
 [
   {
     "id": "fatty_liver",
-    "name_ko": "지방간 (비알코올성)",
-    "name_en": "Non-Alcoholic Fatty Liver Disease (NAFLD)",
+    "name_ko": "지방간",
+    "name_en": "Fatty Liver Disease",
     "target_goals": [
       "간 내 지방 축적 감소 및 내장지방 연소",
       "인슐린 저항성 완화 및 간 수치(ALT/AST) 정상화",
@@ -24,7 +24,8 @@
       },
       "tips": [
         "최소 30분 이상 지속하여 내장지방 산화율을 높이세요.",
-        "운동 전후 충분한 수분 섭취로 탈수에 의한 간 부담을 방지하세요."
+        "운동 전후 충분한 수분 섭취로 탈수에 의한 간 부담을 방지하세요.",
+        "알코올 섭취가 동반된다면 운동보다 금주가 1순위 치료입니다."
       ]
     },
     "resistance_guide": {
@@ -85,7 +86,7 @@
     },
     "contraindications_and_warnings": [
       "과도한 고중량 1RM 도전 등 극단적 부하 자제 (간 손상 방지)",
-      "운동 후 음주 및 고당류 음료 절대 금기",
+      "운동 후 음주 및 고당류 음료 절대 금기 (알코올은 무조건 절제/금주)",
       "탈수 방지를 위해 운동 중 규칙적 물 섭취 필수"
     ]
   },
@@ -176,7 +177,7 @@
     "name_ko": "고혈압",
     "name_en": "Hypertension",
     "target_goals": [
-      "혈관 내피세포 기능 향상 및 일산화질소 분비 촉진으로 혈압 강하",
+      "혈관 내피세포 기능 향상 및 혈압 강하",
       "말초 혈관 저항 감소 및 안정시 심박수 안정화"
     ],
     "aerobic_guide": {
@@ -226,6 +227,151 @@
       "무거운 무게를 들며 숨을 멈추는 발살바(Valsalva) 호흡 절대 금지",
       "머리가 심장보다 아래로 내려가는 운동(디클라인 벤치 등) 금기",
       "수축기 혈압 160mmHg 이상, 이완기 100mmHg 이상일 때는 운동 즉시 중단"
+    ]
+  },
+  {
+    "id": "dyslipidemia",
+    "name_ko": "고지혈증 (이상지질혈증)",
+    "name_en": "Dyslipidemia",
+    "target_goals": [
+      "혈중 중성지방(TG) 수치 강하 및 좋은 콜레스테롤(HDL) 증가",
+      "지질 분해 효소(LPL) 활성화를 통한 혈관 청소"
+    ],
+    "aerobic_guide": {
+      "frequency_days_per_week": "주 4~5일 (주당 총 200분 이상)",
+      "target_duration_minutes": 45,
+      "recommended_time_window": "편안한 시간대 (지속 시간 확보 중심)",
+      "intensity": "중등도 지속 유산소 (지방 산화율 최대 구간)",
+      "walking_cadence_spm": {
+        "min": 105,
+        "max": 120,
+        "recommended": 112
+      },
+      "walking_speed_kmh": {
+        "min": 5.0,
+        "max": 5.8
+      },
+      "tips": [
+        "고지혈증은 '운동 강도'보다 '운동 지속 시간'이 지질 개선에 더 중요합니다.",
+        "한 번에 최소 40분 이상 연속 유산소를 추천합니다."
+      ]
+    },
+    "resistance_guide": {
+      "frequency_days_per_week": "주 2~3일",
+      "target_sets": "3세트",
+      "reps_per_set": "12~15회",
+      "target_muscles": ["대근육군 복합 서킷"],
+      "recommended_exercises": [
+        {
+          "name": "레그프레스 & 스쿼트",
+          "category": "gym_machine",
+          "target": "하체 대근육",
+          "reps": "15회 x 3세트",
+          "benefit": "지단백 분해 효소 분비 촉진",
+          "caution": "휴식 시간을 1분 이내로 짧게 가져가 칼로리 소모를 극대화하세요."
+        }
+      ]
+    },
+    "contraindications_and_warnings": [
+      "스타틴 복용 시 이유 없는 근육통이나 횡문근융해증 증상 발생 시 즉시 강도 조절",
+      "야식 및 트랜스지방 섭취 병행 금지"
+    ]
+  },
+  {
+    "id": "obesity",
+    "name_ko": "복부비만 / 비만",
+    "name_en": "Obesity",
+    "target_goals": [
+      "내장지방 및 체지방률 감소",
+      "기초대사량 보존 및 관절 보호"
+    ],
+    "aerobic_guide": {
+      "frequency_days_per_week": "주 5일 이상",
+      "target_duration_minutes": 45,
+      "recommended_time_window": "식전 공복 또는 식후 1시간",
+      "intensity": "중등도 (약간 땀이 맺히는 지속 페이스)",
+      "walking_cadence_spm": {
+        "min": 100,
+        "max": 115,
+        "recommended": 108
+      },
+      "walking_speed_kmh": {
+        "min": 4.5,
+        "max": 5.5
+      },
+      "tips": [
+        "체중 부하로 인한 무릎 충격을 줄이기 위해 쿠션이 좋은 러닝화를 착용하세요.",
+        "경사로 걷기(인클라인 트레드밀)는 무릎 충격을 줄이면서 칼로리를 크게 소모합니다."
+      ]
+    },
+    "resistance_guide": {
+      "frequency_days_per_week": "주 3일",
+      "target_sets": "3세트",
+      "reps_per_set": "12~15회",
+      "target_muscles": ["전신 대근육"],
+      "recommended_exercises": [
+        {
+          "name": "체스트프레스 & 랫풀다운",
+          "category": "gym_machine",
+          "target": "상체 대근육",
+          "reps": "12~15회 x 3세트",
+          "benefit": "체중 부하 없이 상체 근육량을 늘려 휴식기 대사율 증대",
+          "caution": "등받이에 밀착하여 척추 부담을 덜어주세요."
+        }
+      ]
+    },
+    "contraindications_and_warnings": [
+      "고체중 상태에서 무리한 줄넘기/뜀뛰기 등 점프 동작 금지 (무릎 관절 연골 손상 위험)",
+      "초기에는 충격이 적은 평지 걷기 및 실내 자전거 위주로 시작"
+    ]
+  },
+  {
+    "id": "gout",
+    "name_ko": "통풍 (고요산혈증)",
+    "name_en": "Gout / Hyperuricemia",
+    "target_goals": [
+      "요산 배출 촉진 및 체중 조절",
+      "관절 염증 발작 예방"
+    ],
+    "aerobic_guide": {
+      "frequency_days_per_week": "주 3~5일",
+      "target_duration_minutes": 30,
+      "recommended_time_window": "체온과 수분이 안정적인 시간대",
+      "intensity": "저~중등도 (젖산 축적이 적은 편안한 유산소)",
+      "walking_cadence_spm": {
+        "min": 95,
+        "max": 110,
+        "recommended": 100
+      },
+      "walking_speed_kmh": {
+        "min": 4.2,
+        "max": 5.0
+      },
+      "tips": [
+        "극심한 고강도 운동은 젖산을 발생시켜 신장의 요산 배출을 방해하므로, 숨이 헐떡이지 않는 편안한 걷기가 가장 좋습니다.",
+        "운동 중 15분마다 미온수를 1~2모금씩 꼭 마셔주세요."
+      ]
+    },
+    "resistance_guide": {
+      "frequency_days_per_week": "주 2일",
+      "target_sets": "2세트",
+      "reps_per_set": "15회 (저강도 순환)",
+      "target_muscles": ["관절 압박이 적은 머신 운동"],
+      "recommended_exercises": [
+        {
+          "name": "가벼운 레그프레스 / 머신 운동",
+          "category": "gym_machine",
+          "target": "하체",
+          "reps": "15회 x 2세트 (저중량)",
+          "benefit": "발가락/발목 관절에 직접적인 과부하 없이 근육 자극",
+          "caution": "발가락 관절에 통증이나 열감이 있을 때는 즉시 중단하세요."
+        }
+      ]
+    },
+    "contraindications_and_warnings": [
+      "급성 통풍 발작(관절 부종/극심한 통증) 진행 중에는 모든 운동 금지 및 절대 휴식",
+      "탈수는 요산 농도를 급상승시키므로 사우나나 땀을 쥐어짜는 운동 금기",
+      "고단백 섭취 과다 및 퓨린 함량이 높은 식품 주의"
     ]
   }
 ]

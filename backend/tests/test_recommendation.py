@@ -22,7 +22,7 @@ def test_user_case_fatty_liver_and_prediabetes():
     res = engine.generate_recommendation(req)
 
     # 1. Condition names
-    assert "지방간 (비알코올성)" in res.user_conditions
+    assert "지방간" in res.user_conditions
     assert "전당뇨 (공복혈당장애 / 내당능장애)" in res.user_conditions
 
     # 2. Aerobic Prescription check
