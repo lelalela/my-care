@@ -1,0 +1,47 @@
+{
+  "cli_version": "0.12.2",
+  "checkpoint_id": "01M6JRGZZBR1B0WN9P8MZZ90TV",
+  "session_id": "bfd396cb-3297-44b7-83d8-63ca288c78b1",
+  "strategy": "manual-commit",
+  "created_at": "2026-11-04T07:49:08.904155058Z",
+  "branch": "main",
+  "checkpoints_count": 6,
+  "save_step_count": 4,
+  "files_touched": [
+    ".github/workflows/android.yml",
+    ".github/workflows/ios.yml",
+    ".github/workflows/mobile-release.yml",
+    "frontend/android/app/build.gradle.kts",
+    "frontend/android/key.properties.example"
+  ],
+  "agent": "Cursor",
+  "model": "default",
+  "turn_id": "920b2aec2a87",
+  "checkpoint_transcript_start": 23,
+  "transcript_lines_at_start": 23,
+  "compact_transcript_start": 8,
+  "token_usage": {
+    "input_tokens": 70058,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 779648,
+    "output_tokens": 12498,
+    "api_call_count": 4
+  },
+  "redaction": {
+    "replacements": 2,
+    "layers": {
+      "betterleaks": 2,
+      "connection_string": 0,
+      "credential_key": 0,
+      "credential_value": 0,
+      "credentialed_uri": 0,
+      "entropy": 0,
+      "key_context": 0,
+      "provider_token": 0,
+      "shell_stdin": 0
+    }
+  },
+  "session_metrics": {
+    "turn_count": 9
+  }
+}
