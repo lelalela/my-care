@@ -60,7 +60,19 @@
    - 오늘의 맞춤 유산소 카드 (목표 SPM, 골든타임, 목표 지속 시간, 권장 시속)
    - 맞춤 근력 / 홈트 루틴 카드 (타겟 부위, 세트/반복수, 임상 효과, 주의사항)
    - 임상 안전 수칙 (필독) 카드 (발살바 호흡 금기, 수분 섭취, 관절 보호)
-   - 위젯 인터랙션 테스트 통과 (`frontend/test/widget_test.dart`)
+7. **실시간 워킹 코칭 메트로놈 & 타이머 화면 구현 완료**:
+   - `frontend/lib/presentation/walking/`
+   - 처방 SPM(예: 115 SPM)에 맞춘 실시간 펄스 애니메이션 (Walking Pacer)
+   - 경과 시간, 목표 프로그레스 바, 실시간 추정 걸음 수 및 칼로리 계산
+   - 실시간 SPM 미세 조절 (+5 / -5 SPM) 및 햅틱 클릭
+   - 일시정지, 재개, 운동 완료 결과 요약 다이얼로그
+8. **FastAPI 백엔드 ↔ Flutter API 연동 및 오프라인-온라인 하이브리드 지원**:
+   - `frontend/lib/data/data_source/remote/prescription_api_client.dart`
+   - `frontend/lib/data/repository/prescription_repository.dart`
+   - FastAPI `/api/recommend` 엔드포인트 비동기 통신 및 서버 부재 시 로컬 알고리즘 자동 폴백
+9. **Android 에뮬레이터(Pixel API 35) 실기기 빌드 및 런타임 검증 완료**:
+   - `flutter analyze` 0 warnings, `flutter test` 100% 통과, `pytest` 3/3 통과
+   - 에뮬레이터에서 온보딩 ➡️ 홈 대시보드 ➡️ 워킹 코칭 ➡️ 운동 완료 전체 플로우 검증 완료
 
 ---
 
