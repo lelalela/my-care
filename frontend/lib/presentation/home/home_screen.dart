@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../data/repository/routine_template_repository.dart';
+import '../../domain/model/biweekly_routine.dart';
 import '../../domain/model/condition_type.dart';
 import '../../domain/model/prescription.dart';
 import '../../domain/model/routine_template.dart';
@@ -23,6 +24,8 @@ class HomeRoot extends StatefulWidget {
     this.aerobicDurationMinutes = 35,
     this.aerobicTargetSpm = 115,
     this.targetSets = 3,
+    this.biWeeklyPlan,
+    this.activeSplitDay,
   });
 
   final Set<ConditionType> selectedConditions;
@@ -32,6 +35,8 @@ class HomeRoot extends StatefulWidget {
   final int aerobicDurationMinutes;
   final int aerobicTargetSpm;
   final int targetSets;
+  final BiWeeklyRoutinePlan? biWeeklyPlan;
+  final SplitDayRoutine? activeSplitDay;
 
   @override
   State<HomeRoot> createState() => _HomeRootState();
@@ -51,6 +56,8 @@ class _HomeRootState extends State<HomeRoot> {
       aerobicDurationMinutes: widget.aerobicDurationMinutes,
       aerobicTargetSpm: widget.aerobicTargetSpm,
       targetSets: widget.targetSets,
+      biWeeklyPlan: widget.biWeeklyPlan,
+      activeSplitDay: widget.activeSplitDay,
     );
   }
 
@@ -207,6 +214,98 @@ class HomeScreen extends StatelessWidget {
               onLogRestDay: () => onAction(const LogRestDayAction()),
             ),
             const SizedBox(height: 20),
+
+            // [신규] 2주 순환 격일 루틴 배너
+            if (state.activeSplitDay != null) ...[
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: state.isRestDay
+                      ? AppColors.secondary.withValues(alpha: 0.1)
+                      : AppColors.primaryContainer.withValues(alpha: 0.25),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: state.isRestDay
+                        ? AppColors.secondary.withValues(alpha: 0.6)
+                        : AppColors.primary,
+                    width: 1.4,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: state.isRestDay
+                            ? AppColors.secondary.withValues(alpha: 0.2)
+                            : AppColors.primary.withValues(alpha: 0.15),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: Text(
+                          state.isRestDay ? '🛌' : '📅',
+                          style: const TextStyle(fontSize: 22),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: state.isRestDay
+                                      ? AppColors.secondary
+                                      : AppColors.primary,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  '${state.activeSplitDay!.weekNumber}주차 ${state.activeSplitDay!.dayLabel}요일',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  state.activeSplitDay!.title,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w800,
+                                    color: state.isRestDay
+                                        ? AppColors.secondary
+                                        : AppColors.primary,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            state.activeSplitDay!.clinicalGoal,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
 
             // 2. 오늘의 맞춤 하루 운동 루틴 (유산소 1단계 + 근력 2단계 통합)
             DailyWorkoutCard(

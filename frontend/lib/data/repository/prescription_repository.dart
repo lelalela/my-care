@@ -1,3 +1,4 @@
+import '../../domain/model/biweekly_routine.dart';
 import '../../domain/model/condition_type.dart';
 import '../../domain/model/prescription.dart';
 import '../data_source/local/exercise_local_data_source.dart';
@@ -393,5 +394,260 @@ class PrescriptionRepository {
     }
 
     return filteredList;
+  }
+
+  /// 2주 순환 격일 분할 루틴 생성 (1주차: 월,수,금,일 / 2주차: 화,목,토)
+  BiWeeklyRoutinePlan generateBiWeeklyRoutine({
+    required Set<ConditionType> conditions,
+    required ExerciseEnvironment environment,
+    String? aerobicType,
+    int? customAerobicDuration,
+    int? customAerobicCadence,
+    List<Map<String, dynamic>>? exerciseDatabase,
+  }) {
+    // 1. 기본 유산소 처방 생성
+    final basePrescription = generatePrescription(
+      conditions: conditions,
+      environment: environment,
+      aerobicType: aerobicType,
+      customAerobicDuration: customAerobicDuration,
+      customAerobicCadence: customAerobicCadence,
+      exerciseDatabase: exerciseDatabase,
+    );
+    final aerobic = basePrescription.aerobic;
+
+    // 2. 전체 가용 운동 목록 확보
+    final lds = localDataSource ?? ExerciseLocalDataSource();
+    final rawList = exerciseDatabase ?? lds.getLoadedExercisesSync();
+    List<PrescribedExercise> allExercises;
+    if (rawList.isNotEmpty) {
+      allExercises = lds.filterExercises(
+        rawData: rawList,
+        conditions: conditions,
+        environment: environment,
+      );
+    } else {
+      allExercises = _generateFallbackExercises(
+        conditions: conditions,
+        environment: environment,
+      );
+    }
+
+    // 부위별 분류 (하체 / 상체 밀기 / 상체 당기기 및 코어)
+    final lowerExercises = allExercises.where((e) {
+      final t = '${e.name} ${e.target} ${e.category}'.toLowerCase();
+      return t.contains('레그') ||
+          t.contains('스쿼트') ||
+          t.contains('하체') ||
+          t.contains('카프') ||
+          t.contains('뒤꿈치') ||
+          t.contains('익스텐션') ||
+          t.contains('브릿지') ||
+          t.contains('데드리프트') ||
+          t.contains('대퇴') ||
+          t.contains('둔근');
+    }).toList();
+
+    final pushExercises = allExercises.where((e) {
+      final t = '${e.name} ${e.target} ${e.category}'.toLowerCase();
+      return t.contains('체스트') ||
+          t.contains('푸시업') ||
+          t.contains('가슴') ||
+          t.contains('밀기') ||
+          t.contains('삼두') ||
+          t.contains('어깨') ||
+          t.contains('레터럴');
+    }).toList();
+
+    final pullAndCoreExercises = allExercises.where((e) {
+      final t = '${e.name} ${e.target} ${e.category}'.toLowerCase();
+      return t.contains('풀다운') ||
+          t.contains('로우') ||
+          t.contains('등') ||
+          t.contains('당기기') ||
+          t.contains('버드독') ||
+          t.contains('버피') ||
+          t.contains('코어') ||
+          t.contains('광배');
+    }).toList();
+
+    // 빈 카테고리 보정
+    if (lowerExercises.isEmpty) lowerExercises.addAll(allExercises.take(3));
+    if (pushExercises.isEmpty) pushExercises.addAll(allExercises.skip(1).take(3));
+    if (pullAndCoreExercises.isEmpty) pullAndCoreExercises.addAll(allExercises.skip(2).take(3));
+
+    // 루틴 서브셋 도우미 (최대 3종목)
+    List<PrescribedExercise> pick(
+        List<PrescribedExercise> list, int offset, int count) {
+      if (list.isEmpty) return [];
+      final result = <PrescribedExercise>[];
+      for (int i = 0; i < count && i < list.length; i++) {
+        result.add(list[(offset + i) % list.length]);
+      }
+      return result;
+    }
+
+    final days = <SplitDayRoutine>[
+      // ─── 1주차 (월, 수, 금, 일) ───
+      SplitDayRoutine(
+        weekNumber: 1,
+        weekday: 1,
+        dayLabel: '월',
+        isRestDay: false,
+        routineType: 'A',
+        title: '루틴 A: 하체 & 혈당 대사 집중',
+        clinicalGoal: '대퇴사두근/둔근 GLUT4 포도당 흡수 극대화 및 식후 혈당 스파이크 차단',
+        exercises: pick(lowerExercises, 0, 3),
+        aerobic: aerobic,
+      ),
+      const SplitDayRoutine(
+        weekNumber: 1,
+        weekday: 2,
+        dayLabel: '화',
+        isRestDay: true,
+        routineType: 'REST',
+        title: '안심 휴식일 🛌',
+        clinicalGoal: '근섬유 48시간 초회복 및 간 글리코겐 안정화',
+        exercises: [],
+      ),
+      SplitDayRoutine(
+        weekNumber: 1,
+        weekday: 3,
+        dayLabel: '수',
+        isRestDay: false,
+        routineType: 'B',
+        title: '루틴 B: 상체 가슴/어깨 밀기',
+        clinicalGoal: '하체 회복 중 상체 대근육 자극으로 기초대사량 증가 및 간 지방 연소',
+        exercises: pick(pushExercises, 0, 3),
+        aerobic: aerobic,
+      ),
+      const SplitDayRoutine(
+        weekNumber: 1,
+        weekday: 4,
+        dayLabel: '목',
+        isRestDay: true,
+        routineType: 'REST',
+        title: '안심 휴식일 🛌',
+        clinicalGoal: '상체 가슴·어깨 근육 48시간 재생',
+        exercises: [],
+      ),
+      SplitDayRoutine(
+        weekNumber: 1,
+        weekday: 5,
+        dayLabel: '금',
+        isRestDay: false,
+        routineType: 'C',
+        title: '루틴 C: 상체 등/광배 & 코어',
+        clinicalGoal: '등 대근육 및 코어 활성화로 혈류 순환 촉진과 척추 기립근 강화',
+        exercises: pick(pullAndCoreExercises, 0, 3),
+        aerobic: aerobic,
+      ),
+      const SplitDayRoutine(
+        weekNumber: 1,
+        weekday: 6,
+        dayLabel: '토',
+        isRestDay: true,
+        routineType: 'REST',
+        title: '안심 휴식일 🛌',
+        clinicalGoal: '주말 전신 근육 피로 회복',
+        exercises: [],
+      ),
+      SplitDayRoutine(
+        weekNumber: 1,
+        weekday: 7,
+        dayLabel: '일',
+        isRestDay: false,
+        routineType: "A'",
+        title: '루틴 A\': 하체 & 둔근 대사 복합',
+        clinicalGoal: '주말 탄수화물 섭취 대비 둔근·햄스트링 복합 자극으로 포도당 흡수 촉진',
+        exercises: pick(lowerExercises, 1, 3),
+        aerobic: aerobic,
+      ),
+
+      // ─── 2주차 (화, 목, 토) ───
+      const SplitDayRoutine(
+        weekNumber: 2,
+        weekday: 1,
+        dayLabel: '월',
+        isRestDay: true,
+        routineType: 'REST',
+        title: '안심 휴식일 🛌',
+        clinicalGoal: '일요일 하체 운동 후 48시간 관절 및 근육 휴식',
+        exercises: [],
+      ),
+      SplitDayRoutine(
+        weekNumber: 2,
+        weekday: 2,
+        dayLabel: '화',
+        isRestDay: false,
+        routineType: "B'",
+        title: '루틴 B\': 상체 가슴/전면 강화',
+        clinicalGoal: '상체 전면부 대근육 활성화로 간 내 지방산 산화 촉진',
+        exercises: pick(pushExercises, 1, 3),
+        aerobic: aerobic,
+      ),
+      const SplitDayRoutine(
+        weekNumber: 2,
+        weekday: 3,
+        dayLabel: '수',
+        isRestDay: true,
+        routineType: 'REST',
+        title: '안심 휴식일 🛌',
+        clinicalGoal: '상체 근육 48시간 회복',
+        exercises: [],
+      ),
+      SplitDayRoutine(
+        weekNumber: 2,
+        weekday: 4,
+        dayLabel: '목',
+        isRestDay: false,
+        routineType: "C'",
+        title: '루틴 C\': 상체 등/견갑 & 코어',
+        clinicalGoal: '견갑골 주변 대사 활성화 및 코어 안정화',
+        exercises: pick(pullAndCoreExercises, 1, 3),
+        aerobic: aerobic,
+      ),
+      const SplitDayRoutine(
+        weekNumber: 2,
+        weekday: 5,
+        dayLabel: '금',
+        isRestDay: true,
+        routineType: 'REST',
+        title: '안심 휴식일 🛌',
+        clinicalGoal: '등 및 코어 근육 완전 회복',
+        exercises: [],
+      ),
+      SplitDayRoutine(
+        weekNumber: 2,
+        weekday: 6,
+        dayLabel: '토',
+        isRestDay: false,
+        routineType: 'A',
+        title: '루틴 A: 하체 & 혈당 집중',
+        clinicalGoal: '주말 외식 혈당 스파이크 차단 및 대퇴사두근 집중 강화',
+        exercises: pick(lowerExercises, 0, 3),
+        aerobic: aerobic,
+      ),
+      const SplitDayRoutine(
+        weekNumber: 2,
+        weekday: 7,
+        dayLabel: '일',
+        isRestDay: true,
+        routineType: 'REST',
+        title: '안심 휴식일 🛌',
+        clinicalGoal: '14일 주기 완료 & 다음 1주차 대비 생체 리듬 재정비',
+        exercises: [],
+      ),
+    ];
+
+    return BiWeeklyRoutinePlan(
+      planId:
+          'biweekly_${conditions.map((c) => c.name).join('_')}_${environment.name}',
+      title: '격일 2주 순환 맞춤 처방 플랜',
+      description: '1주차(월·수·금·일: 4회) & 2주차(화·목·토: 3회) 부위별 48시간 초회복 분할',
+      conditions: conditions,
+      environment: environment,
+      days: days,
+    );
   }
 }

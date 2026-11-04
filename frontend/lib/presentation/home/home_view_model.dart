@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../../data/repository/prescription_repository.dart';
 import '../../data/repository/workout_history_repository.dart';
+import '../../domain/model/biweekly_routine.dart';
 import '../../domain/model/condition_type.dart';
 import '../../domain/model/prescription.dart';
 import '../../domain/model/workout_record.dart';
@@ -19,6 +20,8 @@ class HomeState {
     this.customExerciseSets = const <String, int>{},
     this.aerobicType = 'walking',
     this.selectedExerciseNames,
+    this.biWeeklyPlan,
+    this.activeSplitDay,
     this.isLoading = false,
   });
 
@@ -34,7 +37,11 @@ class HomeState {
   final Map<String, int> customExerciseSets;
   final String aerobicType;
   final Set<String>? selectedExerciseNames;
+  final BiWeeklyRoutinePlan? biWeeklyPlan;
+  final SplitDayRoutine? activeSplitDay;
   final bool isLoading;
+
+  bool get isRestDay => activeSplitDay?.isRestDay ?? false;
 
   int getTargetSetsFor(String exerciseName) {
     return customExerciseSets[exerciseName] ?? defaultTargetSets;
@@ -53,6 +60,8 @@ class HomeState {
     Map<String, int>? customExerciseSets,
     String? aerobicType,
     Set<String>? selectedExerciseNames,
+    BiWeeklyRoutinePlan? biWeeklyPlan,
+    SplitDayRoutine? activeSplitDay,
     bool? isLoading,
   }) {
     return HomeState(
@@ -69,6 +78,8 @@ class HomeState {
       aerobicType: aerobicType ?? this.aerobicType,
       selectedExerciseNames:
           selectedExerciseNames ?? this.selectedExerciseNames,
+      biWeeklyPlan: biWeeklyPlan ?? this.biWeeklyPlan,
+      activeSplitDay: activeSplitDay ?? this.activeSplitDay,
       isLoading: isLoading ?? this.isLoading,
     );
   }
@@ -115,6 +126,8 @@ class HomeViewModel extends ChangeNotifier {
     this._aerobicDurationMinutes,
     this._aerobicTargetSpm,
     int targetSets = 3,
+    BiWeeklyRoutinePlan? biWeeklyPlan,
+    SplitDayRoutine? activeSplitDay,
     PrescriptionRepository? repository,
     WorkoutHistoryRepository? historyRepository,
   })  : _repository = repository ?? const PrescriptionRepository(),
@@ -126,6 +139,8 @@ class HomeViewModel extends ChangeNotifier {
           selectedExerciseNames: selectedExerciseNames,
           aerobicType: aerobicType,
           defaultTargetSets: targetSets,
+          biWeeklyPlan: biWeeklyPlan,
+          activeSplitDay: activeSplitDay,
         ) {
     _loadPrescription();
     _loadHistory();
@@ -174,6 +189,32 @@ class HomeViewModel extends ChangeNotifier {
   Future<void> _loadPrescription() async {
     _state = _state.copyWith(isLoading: true);
     notifyListeners();
+
+    if (_state.activeSplitDay != null) {
+      final split = _state.activeSplitDay!;
+      final base = await _repository.getPrescription(
+        conditions: _state.conditions,
+        environment: _state.environment,
+        aerobicType: _state.aerobicType,
+        customAerobicDuration: _aerobicDurationMinutes,
+        customAerobicCadence: _aerobicTargetSpm,
+      );
+
+      final splitPrescription = WorkoutPrescription(
+        conditionNames: base.conditionNames,
+        primaryGoals: [split.title, split.clinicalGoal, ...base.primaryGoals],
+        aerobic: split.aerobic ?? base.aerobic,
+        exercises: split.exercises,
+        safetyWarnings: base.safetyWarnings,
+      );
+
+      _state = _state.copyWith(
+        prescription: splitPrescription,
+        isLoading: false,
+      );
+      notifyListeners();
+      return;
+    }
 
     final result = await _repository.getPrescription(
       conditions: _state.conditions,

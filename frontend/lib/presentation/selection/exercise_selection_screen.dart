@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import '../../data/repository/prescription_repository.dart';
 import '../../data/repository/routine_template_repository.dart';
+import '../../domain/model/biweekly_routine.dart';
 import '../../domain/model/condition_type.dart';
 import '../../domain/model/prescription.dart';
 import '../../domain/model/routine_template.dart';
 import '../../ui/app_colors.dart';
 import '../common/exercise_detail_dialog.dart';
 import '../home/home_screen.dart';
+import 'widgets/biweekly_routine_view.dart';
 
 /// 2단계: 운동 환경(헬스장/홈트) 탭 & 추천 운동 체크리스트 + 템플릿 관리 화면
 class ExerciseSelectionScreen extends StatefulWidget {
@@ -41,6 +43,12 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
   List<PrescribedExercise> _recommendedExercises = [];
   List<RoutineTemplate> _savedTemplates = [];
   bool _isLoading = false;
+
+  // ─── 📅 격일 2주 순환 분할 루틴 관련 상태 ───
+  bool _isBiWeeklyMode = false; // 단일 운동 자유 선택 / 템플릿 호환성을 위해 기본 false, 상단 탭으로 2주 루틴 선택 가능
+  int _selectedWeek = 1; // 1주차 or 2주차
+  int _selectedDayIndex = 0; // 0..6 (월..일)
+  late BiWeeklyRoutinePlan _biWeeklyPlan;
 
   String? _getContraindicationWarning(String exerciseName) {
     if (_selectedPainPoints.contains('무릎 관절/통증')) {
@@ -155,6 +163,13 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
     if (widget.initialTemplate == null && _selectedExerciseNames.isEmpty) {
       _selectedExerciseNames.addAll(_recommendedExercises.map((e) => e.name));
     }
+
+    // 2주 순환 플랜 재생성
+    _biWeeklyPlan = _prescriptionRepository.generateBiWeeklyRoutine(
+      conditions: widget.selectedConditions,
+      environment: _environment,
+      aerobicType: _aerobicType,
+    );
   }
 
   void _switchEnvironment(ExerciseEnvironment newEnv) {
@@ -444,16 +459,37 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
   }
 
   void _navigateToHomeScreen() {
+    SplitDayRoutine? activeSplit;
+    Set<String> targetExercises = _selectedExerciseNames;
+    int targetDuration = _aerobicDuration;
+    int targetSpm = _aerobicSpm;
+    String targetAerobicType = _aerobicType;
+
+    if (_isBiWeeklyMode) {
+      final days = _selectedWeek == 1 ? _biWeeklyPlan.week1Days : _biWeeklyPlan.week2Days;
+      activeSplit = days[_selectedDayIndex.clamp(0, days.length - 1)];
+
+      if (!activeSplit.isRestDay) {
+        targetExercises = activeSplit.exercises.map((e) => e.name).toSet();
+        if (activeSplit.aerobic != null) {
+          targetDuration = activeSplit.aerobic!.durationMinutes;
+          targetSpm = activeSplit.aerobic!.cadenceSpm;
+        }
+      }
+    }
+
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => HomeRoot(
           selectedConditions: widget.selectedConditions,
           environment: _environment,
-          selectedExerciseNames: _selectedExerciseNames,
-          aerobicType: _aerobicType,
-          aerobicDurationMinutes: _aerobicDuration,
-          aerobicTargetSpm: _aerobicSpm,
+          selectedExerciseNames: targetExercises,
+          aerobicType: targetAerobicType,
+          aerobicDurationMinutes: targetDuration,
+          aerobicTargetSpm: targetSpm,
           targetSets: _targetSets,
+          biWeeklyPlan: _isBiWeeklyMode ? _biWeeklyPlan : null,
+          activeSplitDay: activeSplit,
         ),
       ),
     );
@@ -822,6 +858,86 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
                   ),
                   const SizedBox(height: 20),
 
+                  // ─── [모드 선택 세그먼트] 격일 2주 순환 분할 루틴 vs 단일 운동 자유 선택 ───
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceContainerHigh,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: AppColors.outlineVariant),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: InkWell(
+                            onTap: () => setState(() => _isBiWeeklyMode = true),
+                            borderRadius: BorderRadius.circular(10),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              decoration: BoxDecoration(
+                                color: _isBiWeeklyMode
+                                    ? AppColors.primary
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  '📅 격일 2주 순환 루틴 (추천)',
+                                  style: TextStyle(
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: _isBiWeeklyMode
+                                        ? AppColors.onPrimary
+                                        : AppColors.textSecondary,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: InkWell(
+                            onTap: () => setState(() => _isBiWeeklyMode = false),
+                            borderRadius: BorderRadius.circular(10),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              decoration: BoxDecoration(
+                                color: !_isBiWeeklyMode
+                                    ? AppColors.primary
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  '⚙️ 단일 맞춤 선택',
+                                  style: TextStyle(
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: !_isBiWeeklyMode
+                                        ? AppColors.onPrimary
+                                        : AppColors.textSecondary,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // ─── 2주 순환 루틴 뷰 또는 기존 단일 체크리스트 조건부 렌더링 ───
+                  if (_isBiWeeklyMode) ...[
+                    BiWeeklyRoutineView(
+                      plan: _biWeeklyPlan,
+                      selectedWeek: _selectedWeek,
+                      selectedDayIndex: _selectedDayIndex,
+                      onSelectWeek: (w) => setState(() => _selectedWeek = w),
+                      onSelectDayIndex: (d) => setState(() => _selectedDayIndex = d),
+                    ),
+                    const SizedBox(height: 16),
+                  ] else ...[
                   // ─── 2. 맞춤 근력 추천 종목 체크리스트 ───
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1125,6 +1241,7 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
                       ),
                     );
                   }),
+                  ], // end of else if (!_isBiWeeklyMode)
                   const SizedBox(height: 20),
                 ],
               ),
@@ -1146,40 +1263,57 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
                   ),
                 ],
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  OutlinedButton.icon(
-                    onPressed: _openSaveTemplateDialog,
-                    icon: const Icon(Icons.bookmark_border_rounded, size: 18),
-                    label: const Text('현재 구성을 템플릿으로 저장 💾'),
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(42),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+              child: Builder(
+                builder: (context) {
+                  final activeDay = _isBiWeeklyMode
+                      ? (_selectedWeek == 1 ? _biWeeklyPlan.week1Days : _biWeeklyPlan.week2Days)[
+                          _selectedDayIndex.clamp(0, 6)]
+                      : null;
+                  final isRestDay = activeDay?.isRestDay ?? false;
+
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (!_isBiWeeklyMode) ...[
+                        OutlinedButton.icon(
+                          onPressed: _openSaveTemplateDialog,
+                          icon: const Icon(Icons.bookmark_border_rounded, size: 18),
+                          label: const Text('현재 구성을 템플릿으로 저장 💾'),
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size.fromHeight(42),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                      ],
+                      FilledButton(
+                        onPressed: (!_isBiWeeklyMode && _selectedExerciseNames.isEmpty)
+                            ? null
+                            : _navigateToHomeScreen,
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size.fromHeight(50),
+                          backgroundColor: isRestDay ? AppColors.secondary : null,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        child: Text(
+                          _isBiWeeklyMode
+                              ? (isRestDay
+                                  ? '🛌 오늘은 안심 휴식일 (홈 화면에서 휴식 확인) ➔'
+                                  : '🔥 $_selectedWeek주차 ${activeDay!.dayLabel}요일 [${activeDay.title}] 루틴 시작 ➔')
+                              : '선택한 ${_selectedExerciseNames.length}개 운동으로 루틴 시작 ➔',
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  FilledButton(
-                    onPressed: _selectedExerciseNames.isEmpty
-                        ? null
-                        : _navigateToHomeScreen,
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size.fromHeight(50),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
-                    child: Text(
-                      '선택한 ${_selectedExerciseNames.length}개 운동으로 루틴 시작 ➔',
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ],
+                    ],
+                  );
+                },
               ),
             ),
           ],
