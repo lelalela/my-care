@@ -1,10 +1,38 @@
 # HANDOFF: My-Care Project Status & Guide
 
-> **문서 버전**: v1.2  
-> **작성 시점**: 2026-11-04 (갱신)  
-> **현재 브랜치**: `main`  
-> **원격 저장소**: https://github.com/lelalela/my-care  
+> **문서 버전**: v1.3 (세션 인수)  
+> **작성 시점**: 2026-11-04  
+> **현재 브랜치**: `main` (`origin/main` 동기화됨)  
+> **HEAD**: `419d96b` — feat: KSPO 운동 DB 35종으로 확장  
+> **원격 저장소**: https://github.com/lelalela/my-care (public)  
 > **작업 위치**: `/home/yjnoh/Works/my-care`
+
+---
+
+## 0. 새 Cursor 세션에서 이렇게 시작
+
+```text
+HANDOFF.md 읽고 이어서 작업해줘.
+main 최신, 운동 DB 35종 반영됨.
+v1.0.1 태그 push 후 Mobile Release 진행 중이면 Releases/Actions 확인해줘.
+```
+
+### 이번 세션(2026-11-04) 요약
+
+| 항목 | 상태 |
+| :--- | :--- |
+| Git remote | Entire → **GitHub** `lelalela/my-care` (public) |
+| CI | `.github/workflows/mobile-release.yml` — 태그 `v*` → 서명 APK/AAB + iOS zip → GitHub Releases |
+| Android 서명 | 로컬 `key.properties` + GitHub Secrets (`ANDROID_*`), 백업 `~/.config/my-care/` |
+| 릴리즈 | **v1.0.0** 공개 완료 · **v1.0.1** 태그 push → Actions 실행 (35종 DB 포함) |
+| HANDOFF | v1.1~v1.3 정리, Next Steps에서 DB 확장·워킹/API 항목 제거 |
+| 테스트 | `pytest` 3/3, `flutter test` 10/10, `flutter analyze` clean |
+
+### 주의·미해결
+
+- GitHub push 가끔 Entire checkpoint와 겹치며 1회 실패 후 **재 push 성공** — 실패 시 `git push origin main` 재시도.
+- **v1.0.1** Release는 Actions 성공 후 https://github.com/lelalela/my-care/releases 에 생성됨 (실행 중이면 Actions 탭 확인).
+- iOS CI 산출물은 **무서명** (TestFlight는 미구현).
 
 ---
 
@@ -96,8 +124,9 @@
 13. **GitHub 배포 & 모바일 릴리즈 파이프라인**:
     - Public repo: `lelalela/my-care`
     - Android **릴리즈 서명** (`frontend/android/app/build.gradle.kts`, GitHub Secrets + `key.properties.example`)
-    - 태그 push 예: `git tag v1.0.0 && git push origin v1.0.0` → Release에 `my-care-android.apk`, `.aab`, iOS Runner zip
-    - 최초 공개 릴리즈: **v1.0.0** (https://github.com/lelalela/my-care/releases/tag/v1.0.0)
+    - 태그 push → Release에 `my-care-android.apk`, `.aab`, iOS Runner zip
+    - **v1.0.0**: https://github.com/lelalela/my-care/releases/tag/v1.0.0  
+    - **v1.0.1**: 운동 DB 35종 (`419d96b`) — 태그 push 후 CI (Actions run 확인)
 
 ---
 
