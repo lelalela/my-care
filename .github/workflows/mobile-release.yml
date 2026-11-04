@@ -1,0 +1,213 @@
+name: Mobile Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "릴리즈 태그 (예: v1.0.0). 비우면 run 번호 기반 draft 릴리즈"
+        required: false
+        type: string
+
+concurrency:
+  group: mobile-release-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+env:
+  FLUTTER_VERSION: "3.47.7"
+
+jobs:
+  android:
+    name: Android (signed)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Decode Android keystore
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ] || [ -z "$ANDROID_KEYSTORE_PASSWORD" ] || [ -z "$ANDROID_KEY_PASSWORD" ] || [ -z "$ANDROID_KEY_ALIAS" ]; then
+            echo "Android signing secrets are missing."
+            exit 1
+          fi
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/upload-keystore.jks
+          printf '%s\n' \
+            "storePassword=$ANDROID_KEYSTORE_PASSWORD" \
+            "keyPassword=$ANDROID_KEY_PASSWORD" \
+            "keyAlias=$ANDROID_KEY_ALIAS" \
+            "storeFile=upload-keystore.jks" \
+            > android/key.properties
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos
+
+      - name: Run tests
+        run: flutter test
+
+      - name: Build signed release APK
+        run: flutter build apk --release
+
+      - name: Build signed App Bundle
+        run: flutter build appbundle --release
+
+      - name: Verify APK signature
+        run: |
+          APKSIGNER="$(ls -d "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -1)"
+          "$APKSIGNER" verify --print-certs build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Stage Android artifacts
+        run: |
+          mkdir -p artifacts
+          cp build/app/outputs/flutter-apk/app-release.apk artifacts/my-care-android.apk
+          cp build/app/outputs/bundle/release/app-release.aab artifacts/my-care-android.aab
+
+      - name: Upload Android artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-release
+          path: frontend/artifacts/*
+          if-no-files-found: error
+          retention-days: 30
+
+  ios:
+    name: iOS (no codesign)
+    runs-on: macos-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos
+
+      - name: Run tests
+        run: flutter test
+
+      - name: Build iOS (no codesign)
+        run: flutter build ios --release --no-codesign
+
+      - name: Package Runner.app
+        run: |
+          mkdir -p artifacts
+          cp -R build/ios/iphoneos/Runner.app artifacts/
+          (cd artifacts && zip -r my-care-ios-runner.app.zip Runner.app)
+          rm -rf artifacts/Runner.app
+
+      - name: Upload iOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-release
+          path: frontend/artifacts/my-care-ios-runner.app.zip
+          if-no-files-found: error
+          retention-days: 30
+
+  release:
+    name: GitHub Release
+    needs: [android, ios]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Android artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: android-release
+          path: dist/android
+
+      - name: Download iOS artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ios-release
+          path: dist/ios
+
+      - name: Prepare release files
+        run: |
+          mkdir -p dist/release
+          cp dist/android/my-care-android.apk dist/release/
+          cp dist/android/my-care-android.aab dist/release/
+          cp dist/ios/my-care-ios-runner.app.zip dist/release/
+          ls -lah dist/release
+
+      - name: Resolve release tag
+        id: meta
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ inputs.tag_name }}" ]; then
+            TAG="${{ inputs.tag_name }}"
+          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            TAG="${GITHUB_REF_NAME}"
+          else
+            TAG="mobile-${{ github.run_number }}"
+            echo "draft=true" >> "$GITHUB_OUTPUT"
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Resolved tag: $TAG"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          name: My Care ${{ steps.meta.outputs.tag }}
+          draft: ${{ steps.meta.outputs.draft == 'true' }}
+          generate_release_notes: true
+          files: |
+            dist/release/my-care-android.apk
+            dist/release/my-care-android.aab
+            dist/release/my-care-ios-runner.app.zip
+          body: |
+            ## Downloads
+            - **Android APK** (`my-care-android.apk`) — 서명된 설치 파일
+            - **Android AAB** (`my-care-android.aab`) — Play Store 업로드용
+            - **iOS Runner** (`my-care-ios-runner.app.zip`) — 무서명 CI 아티팩트 (실기기/스토어용 아님)
+
+            iOS 스토어/실기기 배포는 Apple 서명·프로비저닝 설정 후 가능합니다.
