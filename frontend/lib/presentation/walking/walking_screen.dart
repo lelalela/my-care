@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/services/feedback_service.dart';
+import '../../data/repository/workout_history_repository.dart';
+import '../../domain/model/workout_record.dart';
 import '../../ui/app_colors.dart';
 import 'walking_view_model.dart';
 import 'widgets/walking_rhythm_visualizer.dart';
@@ -10,10 +12,12 @@ class WalkingRoot extends StatefulWidget {
     super.key,
     required this.targetSpm,
     required this.durationMinutes,
+    this.conditions = const [],
   });
 
   final int targetSpm;
   final int durationMinutes;
+  final List<String> conditions;
 
   @override
   State<WalkingRoot> createState() => _WalkingRootState();
@@ -35,11 +39,28 @@ class _WalkingRootState extends State<WalkingRoot> {
     );
   }
 
-  void _handleGoalReached() {
+  Future<void> _handleGoalReached() async {
     if (!mounted || _dialogShown) return;
     _dialogShown = true;
     _feedbackService.playCompletionFeedback();
-    _showCompletionDialog(context, _viewModel.state);
+
+    // 운동 기록 저장
+    final now = DateTime.now();
+    final actualMinutes = (_viewModel.state.elapsedSeconds / 60).ceil().clamp(1, 180);
+    final record = WorkoutRecord(
+      id: 'walk_${now.millisecondsSinceEpoch}',
+      completedAt: now,
+      durationMinutes: actualMinutes,
+      steps: _viewModel.state.estimatedSteps,
+      calories: _viewModel.state.estimatedCalories,
+      spm: _viewModel.state.targetSpm,
+      conditions: widget.conditions,
+    );
+    await const WorkoutHistoryRepository().saveRecord(record);
+
+    if (mounted) {
+      _showCompletionDialog(context, _viewModel.state);
+    }
   }
 
   @override

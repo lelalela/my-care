@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import '../../domain/model/condition_type.dart';
+import '../../domain/model/prescription.dart';
 import '../../ui/app_colors.dart';
 import '../walking/walking_screen.dart';
 import 'home_view_model.dart';
 import 'widgets/aerobic_card.dart';
 import 'widgets/exercise_routine_card.dart';
+import 'widgets/exercise_set_tracker_dialog.dart';
 import 'widgets/safety_warning_card.dart';
+import 'widgets/weekly_streak_card.dart';
 
 /// Home Root: ViewModel 주입 및 상태 구독
 class HomeRoot extends StatefulWidget {
@@ -57,6 +60,9 @@ class _HomeRootState extends State<HomeRoot> {
           state: state,
           onAction: _viewModel.onAction,
           onEditProfile: () => Navigator.of(context).pop(),
+          onLogStrength: _viewModel.logStrengthWorkout,
+          onRefreshHistory: () =>
+              _viewModel.onAction(const RefreshHistoryAction()),
         );
       },
     );
@@ -70,11 +76,15 @@ class HomeScreen extends StatelessWidget {
     required this.state,
     required this.onAction,
     required this.onEditProfile,
+    required this.onLogStrength,
+    required this.onRefreshHistory,
   });
 
   final HomeState state;
   final ValueChanged<HomeAction> onAction;
   final VoidCallback onEditProfile;
+  final ValueChanged<PrescribedExercise> onLogStrength;
+  final VoidCallback onRefreshHistory;
 
   @override
   Widget build(BuildContext context) {
@@ -163,33 +173,63 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 16),
+
+            // 1. 주간 스트릭 & 운동 잔디 카드
+            WeeklyStreakCard(
+              streakDays: state.streakDays,
+              completedWeekdays: state.completedWeekdays,
+              weeklyMinutes: state.weeklyMinutes,
+              records: state.records,
+            ),
             const SizedBox(height: 20),
 
-            // 1. 오늘의 맞춤 유산소 카드
+            // 2. 오늘의 맞춤 유산소 카드
             AerobicCard(
               prescription: prescription.aerobic,
-              onStartWalking: (durationMinutes) {
-                Navigator.of(context).push(
+              onStartWalking: (durationMinutes) async {
+                await Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (_) => WalkingRoot(
                       targetSpm: prescription.aerobic.cadenceSpm,
                       durationMinutes: durationMinutes,
+                      conditions: state.conditions.map((c) => c.name).toList(),
                     ),
                   ),
                 );
+                onRefreshHistory();
               },
             ),
             const SizedBox(height: 24),
 
-            // 2. 오늘의 맞춤 근력 / 홈트 루틴 카드 목록
-            ExerciseRoutineCard(exercises: prescription.exercises),
+            // 3. 오늘의 맞춤 근력 / 홈트 루틴 카드 목록 (세트 체크리스트 연결)
+            ExerciseRoutineCard(
+              exercises: prescription.exercises,
+              onExerciseTapped: (exercise) {
+                _openExerciseTracker(context, exercise);
+              },
+            ),
             const SizedBox(height: 24),
 
-            // 3. 임상 안전 및 주의사항 카드
+            // 4. 임상 안전 및 주의사항 카드
             SafetyWarningCard(warnings: prescription.safetyWarnings),
             const SizedBox(height: 32),
           ],
         ),
+      ),
+    );
+  }
+
+  void _openExerciseTracker(BuildContext context, PrescribedExercise exercise) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => ExerciseSetTrackerDialog(
+        exercise: exercise,
+        onExerciseCompleted: () => onLogStrength(exercise),
       ),
     );
   }
