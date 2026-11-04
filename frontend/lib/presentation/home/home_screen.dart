@@ -168,12 +168,12 @@ class HomeScreen extends StatelessWidget {
             // 1. 오늘의 맞춤 유산소 카드
             AerobicCard(
               prescription: prescription.aerobic,
-              onStartWalking: () {
+              onStartWalking: (durationMinutes) {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (_) => WalkingRoot(
                       targetSpm: prescription.aerobic.cadenceSpm,
-                      durationMinutes: prescription.aerobic.durationMinutes,
+                      durationMinutes: durationMinutes,
                     ),
                   ),
                 );

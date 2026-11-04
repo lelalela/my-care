@@ -3,7 +3,7 @@ import '../../../domain/model/prescription.dart';
 import '../../../ui/app_colors.dart';
 
 /// 오늘의 맞춤 유산소 처방 카드
-class AerobicCard extends StatelessWidget {
+class AerobicCard extends StatefulWidget {
   const AerobicCard({
     super.key,
     required this.prescription,
@@ -11,11 +11,40 @@ class AerobicCard extends StatelessWidget {
   });
 
   final AerobicPrescription prescription;
-  final VoidCallback onStartWalking;
+  final ValueChanged<int> onStartWalking;
+
+  @override
+  State<AerobicCard> createState() => _AerobicCardState();
+}
+
+class _AerobicCardState extends State<AerobicCard> {
+  late int _selectedDuration;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDuration = widget.prescription.durationMinutes;
+  }
+
+  @override
+  void didUpdateWidget(covariant AerobicCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.prescription.durationMinutes !=
+        widget.prescription.durationMinutes) {
+      _selectedDuration = widget.prescription.durationMinutes;
+    }
+  }
+
+  void _adjustDuration(int delta) {
+    setState(() {
+      _selectedDuration = (_selectedDuration + delta).clamp(10, 120);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final prescription = widget.prescription;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -43,7 +72,7 @@ class AerobicCard extends StatelessWidget {
                   Container(
                     width: 36,
                     height: 36,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: AppColors.primaryContainer,
                       shape: BoxShape.circle,
                     ),
@@ -69,7 +98,7 @@ class AerobicCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  '${prescription.durationMinutes}분 지속',
+                  '권장 ${prescription.durationMinutes}분',
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -197,6 +226,84 @@ class AerobicCard extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(height: 16),
+
+          // 10분 단위 목표 시간 설정 컨트롤러
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                '목표 운동 시간',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AppColors.outlineVariant),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.remove, size: 16),
+                      visualDensity: VisualDensity.compact,
+                      tooltip: '10분 줄이기',
+                      onPressed: _selectedDuration > 10 ? () => _adjustDuration(-10) : null,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: Text(
+                        '$_selectedDuration분',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.add, size: 16),
+                      visualDensity: VisualDensity.compact,
+                      tooltip: '10분 늘리기',
+                      onPressed: _selectedDuration < 120 ? () => _adjustDuration(10) : null,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+
+          // 10분 단위 퀵 칩 선택 바
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [10, 20, 30, 40, 50, 60].map((mins) {
+                final isSelected = _selectedDuration == mins;
+                return Padding(
+                  padding: const EdgeInsets.only(right: 6),
+                  child: ChoiceChip(
+                    label: Text('$mins분'),
+                    selected: isSelected,
+                    onSelected: (_) => setState(() => _selectedDuration = mins),
+                    visualDensity: VisualDensity.compact,
+                    labelStyle: TextStyle(
+                      fontSize: 12,
+                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                      color: isSelected ? AppColors.onPrimary : AppColors.textSecondary,
+                    ),
+                    selectedColor: AppColors.primary,
+                    showCheckmark: false,
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
           const SizedBox(height: 14),
 
           // 골든타임 타이밍 안내 바
@@ -260,9 +367,9 @@ class AerobicCard extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(
-              onPressed: onStartWalking,
+              onPressed: () => widget.onStartWalking(_selectedDuration),
               icon: const Icon(Icons.play_arrow_rounded, size: 20),
-              label: Text('${prescription.cadenceSpm} SPM 워킹 코칭 시작'),
+              label: Text('${prescription.cadenceSpm} SPM 워킹 코칭 시작 ($_selectedDuration분)'),
               style: FilledButton.styleFrom(
                 minimumSize: const Size.fromHeight(48),
                 shape: RoundedRectangleBorder(

@@ -67,6 +67,11 @@ final class AdjustSpmAction extends WalkingAction {
   final int delta; // e.g. +5 or -5
 }
 
+final class AdjustDurationAction extends WalkingAction {
+  const AdjustDurationAction(this.deltaMinutes);
+  final int deltaMinutes; // e.g. +10 or -10
+}
+
 final class TickAction extends WalkingAction {
   const TickAction();
 }
@@ -105,6 +110,12 @@ class WalkingViewModel extends ChangeNotifier {
       case AdjustSpmAction(:final delta):
         final newSpm = (_state.targetSpm + delta).clamp(80, 160);
         _state = _state.copyWith(targetSpm: newSpm);
+        HapticFeedback.selectionClick();
+        notifyListeners();
+
+      case AdjustDurationAction(:final deltaMinutes):
+        final newDuration = (_state.targetDurationMinutes + deltaMinutes).clamp(10, 120);
+        _state = _state.copyWith(targetDurationMinutes: newDuration);
         HapticFeedback.selectionClick();
         notifyListeners();
 
