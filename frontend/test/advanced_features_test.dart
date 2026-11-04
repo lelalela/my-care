@@ -72,16 +72,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // 1. [UI 5] '즉시 중단' 안전 가드 버튼 확인 및 탭
-    expect(find.text('즉시 중단'), findsOneWidget);
-    await tester.tap(find.text('즉시 중단'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('운동 즉시 중단 및 휴식 안내'), findsOneWidget);
-    await tester.tap(find.text('계속 운동하기'));
-    await tester.pumpAndSettle();
-
-    // 2. 세트 완료 (1세트 탭 -> 휴식 스킵 -> 2세트 탭)
+    // 1. 세트 완료 (1세트 탭 -> 휴식 스킵 -> 2세트 탭)
     await tester.tap(find.text('탭하여 완료'));
     await tester.pumpAndSettle();
 
@@ -93,7 +84,7 @@ void main() {
 
     expect(completed, 2);
 
-    // 3. [기획 3] 운동 전/후 혈당 입력 섹션 노출 확인
+    // 2. [기획 3] 운동 전/후 혈당 입력 섹션 노출 확인
     expect(find.text('운동 전/후 혈당 변화 기록 (선택)'), findsOneWidget);
   });
 
