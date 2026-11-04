@@ -1,8 +1,9 @@
 # HANDOFF: My-Care Project Status & Guide
 
-> **문서 버전**: v1.0  
-> **작성 시점**: 2026-11-04  
+> **문서 버전**: v1.1  
+> **작성 시점**: 2026-11-04 (갱신)  
 > **현재 브랜치**: `main`  
+> **원격 저장소**: https://github.com/lelalela/my-care  
 > **작업 위치**: `/home/yjnoh/Works/my-care`
 
 ---
@@ -25,8 +26,8 @@
 | **Backend** | Python 3.14+, FastAPI, Pydantic, Uvicorn | `backend/` 디렉터리, 가상환경 `.venv` 세팅 완료 |
 | **Frontend** | Flutter 3.47.7, Dart 3.13.5 | `frontend/` 디렉터리, 크로스플랫폼 모바일 앱 |
 | **Data Engine** | JSON Dataset + Python Rule Engine | 스포츠의학 가이드라인 기반 다중 질환 병합 알고리즘 |
-| **Testing** | Pytest 9.2+ | `backend/tests/` (3/3 패스) |
-| **VCS** | Git | `main` 브랜치에 초기 커밋 및 데이터셋 업데이트 완료 |
+| **Testing** | Pytest 9.2+, Flutter test | `backend/tests/` (3/3), `frontend/test/` (10/10) |
+| **VCS / CI** | GitHub Actions | `main`, 태그 `v*` push 시 [Mobile Release](.github/workflows/mobile-release.yml) → GitHub Releases (서명 APK/AAB + iOS zip) |
 
 ---
 
@@ -79,6 +80,24 @@
 9. **Android 에뮬레이터(Pixel API 35) 실기기 빌드 및 런타임 검증 완료**:
    - `flutter analyze` 0 warnings, `flutter test` 100% 통과, `pytest` 3/3 통과
    - 에뮬레이터에서 온보딩 ➡️ 홈 대시보드 ➡️ 워킹 코칭 ➡️ 운동 완료 전체 플로우 검증 완료
+10. **3단계 운동 여정 & KSPO 운동 콘텐츠 (18종)**:
+    - 1단계 질환 선택 → 2단계 헬스장/홈트 탭별 운동 선별·템플릿 저장/불러오기 → 3단계 홈 실천 (`frontend/lib/presentation/selection/`, `onboarding/`)
+    - [frontend/assets/data/exercise_database.json](frontend/assets/data/exercise_database.json): 기구·맨몸·소도구 **18종**
+    - 전 종목 **국민체력100(KSPO) 공식 YouTube** 링크, 2컷 자세 GIF, 3단계 자세 가이드 모달 (`exercise_detail_dialog.dart`)
+    - Android 외부 URL `queries` 및 `launchUrl` 폴백 (`AndroidManifest.xml`)
+11. **근력 세트 트래커 & 세트 간 휴식 타이머 (현장 UX)**:
+    - [frontend/lib/presentation/home/widgets/exercise_set_tracker_dialog.dart](frontend/lib/presentation/home/widgets/exercise_set_tracker_dialog.dart)
+    - 세트별 체크, **60초 휴식 카운트다운**(±조절·스킵), 마지막 3초 햅틱, 세트/운동 완료 시 `FeedbackService` 알림
+    - 목표 세트 동적 조절 및 “오늘 모든 종목에 일괄 적용”, 주간 스트릭(잔디) UI
+12. **전당뇨·지방간 맞춤 격일 2주 순환 분할 루틴**:
+    - [frontend/lib/domain/model/biweekly_routine.dart](frontend/lib/domain/model/biweekly_routine.dart), `prescription_repository.dart` (`generateBiWeeklyRoutine`)
+    - 1주차 주 4회 / 2주차 주 3회, 동일 부위 **48시간 회복** 휴식일, 2단계 UI `biweekly_routine_view.dart`, 홈 배너 연동
+    - [frontend/test/biweekly_routine_test.dart](frontend/test/biweekly_routine_test.dart)
+13. **GitHub 배포 & 모바일 릴리즈 파이프라인**:
+    - Public repo: `lelalela/my-care`
+    - Android **릴리즈 서명** (`frontend/android/app/build.gradle.kts`, GitHub Secrets + `key.properties.example`)
+    - 태그 push 예: `git tag v1.0.0 && git push origin v1.0.0` → Release에 `my-care-android.apk`, `.aab`, iOS Runner zip
+    - 최초 공개 릴리즈: **v1.0.0** (https://github.com/lelalela/my-care/releases/tag/v1.0.0)
 
 ---
 
@@ -105,11 +124,40 @@ flutter analyze
 # flutter run  (기기/에뮬레이터/크롬/리눅스 데스크톱)
 ```
 
+### 모바일 릴리즈 빌드 (CI)
+```bash
+# 로컬 Android 서명 빌드: frontend/android/key.properties + upload-keystore.jks 필요
+cd frontend && flutter build apk --release
+
+# GitHub Release (AOS+iOS 아티팩트 자동 업로드)
+git tag v1.0.1
+git push origin v1.0.1
+```
+
 ---
 
 ## 5. 다음 작업자를 위한 추천 다음 단계 (Next Steps)
 
-1. **워킹 메트로놈 & 실시간 코칭 화면 (`frontend/lib/presentation/walking/`)**:
-   - 처방된 SPM(예: 115 SPM)에 맞춰 비트/진동/사운드 피드백을 주는 실시간 워킹 타이머
-2. **FastAPI 백엔드 ↔ Flutter HTTP 통신 연동**:
-   - `http` 패키지를 통한 `/api/recommend` 엔드포인트 연동 및 오프라인-온라인 하이브리드 지원
+### 의도적으로 보류·제외 (합의됨)
+
+- **운동 후 혈당 “효과 추정”/임상 리포트 자동 계산**: 개인차·약물·SaMD 리스크, CGM/채혈 장비 전제 → **앱 핵심 KPI로 두지 않음**
+- (참고) `exercise_set_tracker_dialog.dart`에 혈당 입력 UI 일부가 남아 있을 수 있음 → 제거 또는 “사용자 메모” 수준으로 축소 검토
+
+### 우선 추천
+
+1. **운동 DB 확장 (18 → 30~35종)**  
+   - 관절 보호(누워서 코어/하지, 수건 스트레칭), 직장인 의자 스트레칭, 폼롤러·짐볼 등  
+   - 기존과 동일 패턴: KSPO 공식 영상 URL + GIF + 3단계 가이드 → `exercise_database.json`
+
+2. **문서 동기화**  
+   - [docs/PRD.md](docs/PRD.md) 로드맵(M1~M5) 체크박스를 현재 구현 수준에 맞게 갱신
+
+3. **iOS 배포 준비 (선택)**  
+   - 현재 CI iOS 산출물은 **무서명** `Runner.app.zip` (검증·아카이브용)  
+   - TestFlight/실기기 배포 시 Apple 인증서·프로비저닝 + `mobile-release.yml` 서명 단계 추가
+
+### 이미 완료되어 더 이상 Next Step 아님
+
+- 워킹 SPM **시각 메트로놈**, 타이머, 완료 사운드·햅틱 → §3-7  
+- FastAPI ↔ Flutter `/api/recommend` + 로컬 폴백 → §3-8  
+- 세트 간 **60초 휴식 타이머** → §3-11  
