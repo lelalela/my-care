@@ -73,7 +73,7 @@ void main() {
     await tester.tap(reduceButton);
     await tester.pumpAndSettle();
 
-    final startButton = find.text('115 SPM 워킹 코칭 시작 (30분)');
+    final startButton = find.text('115 SPM 트레드밀 코칭 시작 (30분)');
     expect(startButton, findsOneWidget);
     await tester.ensureVisible(startButton);
     await tester.pumpAndSettle();
@@ -200,16 +200,10 @@ void main() {
 
     expect(find.text('2단계: 맞춤 운동 선별'), findsOneWidget);
 
-    // 기본은 홈트(식후 야외 / 실내 걷기)
-    expect(find.text('식후 야외 / 실내 걷기'), findsOneWidget);
-
-    // 2. 헬스장 탭으로 전환
-    await tester.tap(find.textContaining('헬스장'));
-    await tester.pumpAndSettle();
-
-    // 트레드밀 및 기구 운동 노출 확인
+    // 기본은 헬스장 (트레드밀 러닝머신 워킹)
     expect(find.text('트레드밀 (러닝머신 워킹)'), findsOneWidget);
 
+    // 2. 홈트 탭으로 전환해 보거나 헬스장 탭 확인
     final legPress = find.text('시티드 레그프레스');
     await tester.scrollUntilVisible(legPress, 200, scrollable: find.byType(Scrollable).first);
     await tester.pumpAndSettle();

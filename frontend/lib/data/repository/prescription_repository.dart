@@ -1,17 +1,21 @@
 import '../../domain/model/condition_type.dart';
 import '../../domain/model/prescription.dart';
+import '../data_source/local/exercise_local_data_source.dart';
 import '../data_source/remote/prescription_api_client.dart';
 
 /// 맞춤 운동 처방 생성 리포지토리
-/// 백엔드 FastAPI 서버와 통신하며, 오프라인 시에도 각 질환별 전용 임상 가이드라인 알고리즘으로 동적 매핑합니다.
+/// 백엔드 FastAPI 서버와 통신하거나, 로컬 에셋(exercise_database.json) 기반의
+/// 국민체력100 & 질병관리청 임상 가이드라인 알고리즘으로 동적 매핑합니다.
 class PrescriptionRepository {
   const PrescriptionRepository({
     this.apiClient,
+    this.localDataSource,
   });
 
   final PrescriptionApiClient? apiClient;
+  final ExerciseLocalDataSource? localDataSource;
 
-  /// 비동기 처방 생성 (FastAPI 우선 시도 -> 오프라인 폴백)
+  /// 비동기 처방 생성 (FastAPI 우선 시도 -> 로컬 JSON 데이터셋 활용 -> 기본 알고리즘 폴백)
   Future<WorkoutPrescription> getPrescription({
     required Set<ConditionType> conditions,
     required ExerciseEnvironment environment,
@@ -27,6 +31,11 @@ class PrescriptionRepository {
       );
       if (remote != null) return remote;
     }
+
+    // 로컬 JSON 데이터 소스가 있으면 비동기 로드 후 처방 생성
+    final lds = localDataSource ?? ExerciseLocalDataSource();
+    final rawData = await lds.loadExercises();
+
     return generatePrescription(
       conditions: conditions,
       environment: environment,
@@ -34,10 +43,11 @@ class PrescriptionRepository {
       aerobicType: aerobicType,
       customAerobicDuration: customAerobicDuration,
       customAerobicCadence: customAerobicCadence,
+      exerciseDatabase: rawData,
     );
   }
 
-  /// 동기 처방 생성 (6대 질환별 차별화된 임상 데이터셋 기반)
+  /// 처방 생성 (로컬 데이터셋 전달 가능, 없으면 인메모리 기본 임상 데이터셋 폴백)
   WorkoutPrescription generatePrescription({
     required Set<ConditionType> conditions,
     required ExerciseEnvironment environment,
@@ -45,6 +55,7 @@ class PrescriptionRepository {
     String? aerobicType,
     int? customAerobicDuration,
     int? customAerobicCadence,
+    List<Map<String, dynamic>>? exerciseDatabase,
   }) {
     final conditionList = conditions.toList();
     final names = conditionList.map((c) => c.name).toList();
@@ -101,209 +112,39 @@ class PrescriptionRepository {
       tips: tips,
     );
 
-    // 2. 6대 질환별 차별화된 전용 근력 운동 데이터베이스 매핑
-    final candidateExercises = <PrescribedExercise>[];
-
-    for (final cond in conditions) {
-      switch (cond) {
-        case ConditionType.prediabetes:
-          // 전당뇨: 하체 대근육 및 가자미근(GLUT4) 집중
-          candidateExercises.addAll([
-            const PrescribedExercise(
-              name: '시티드 레그프레스',
-              category: 'gym_machine',
-              target: '하체 대퇴사두근 & 둔근',
-              reps: '12~15회 × 3세트',
-              benefit: '전신 포도당의 약 70%를 소비하는 대근육 집중 활성화',
-              caution: '발판을 어깨너비로 편안히 잡고 무릎을 잠그지(lock) 마세요.',
-            ),
-            const PrescribedExercise(
-              name: '체어 스쿼트 (의자 스쿼트)',
-              category: 'home_bodyweight',
-              target: '허벅지 & 둔근',
-              reps: '15회 × 3세트',
-              benefit: '식후 실내에서 바로 할 수 있는 가장 강력한 혈당 흡수 운동',
-              caution: '앉을 때 엉덩이를 뒤로 빼고 체중을 발뒤꿈치에 실으세요.',
-            ),
-            const PrescribedExercise(
-              name: '카프 레이즈 (발뒤꿈치 들기)',
-              category: 'home_bodyweight',
-              target: '종아리 가자미근',
-              reps: '20회 × 3세트',
-              benefit: '가자미근의 인슐린 비의존성 포도당 흡수 촉진 (가자미근 푸시업 효과)',
-              caution: '균형을 위해 벽이나 의자를 살짝 짚고 안전하게 수행하세요.',
-            ),
-            const PrescribedExercise(
-              name: '랫 풀 다운',
-              category: 'gym_machine',
-              target: '등(광배근)',
-              reps: '12회 × 3세트',
-              benefit: '상체 글리코겐 저장소 확보를 위한 대근육 발달',
-              caution: '상체를 과도하게 뒤로 젖히지 말고 가슴을 펴세요.',
-            ),
-          ]);
-
-        case ConditionType.fattyLiver:
-          // 지방간: 내장지방 산화 촉진 대근육 복합 운동
-          candidateExercises.addAll([
-            const PrescribedExercise(
-              name: '체스트 프레스 머신',
-              category: 'gym_machine',
-              target: '가슴 & 삼두근',
-              reps: '12회 × 3세트',
-              benefit: '상체 대근육 자극으로 기초대사량 증대 및 지방 산화 촉진',
-              caution: '어깨가 위로 으쓱 올라가지 않게 견갑골을 고정하세요.',
-            ),
-            const PrescribedExercise(
-              name: '월 싯 (벽 대고 버티기)',
-              category: 'home_bodyweight',
-              target: '대퇴사두근 & 코어',
-              reps: '30초 유지 × 3세트',
-              benefit: '등척성 근수축을 통해 관절 부담 없이 지방 분해 효소 활성화',
-              caution: '무릎 각도가 90도를 넘지 않도록 편안한 높이로 유지하세요.',
-            ),
-            const PrescribedExercise(
-              name: '튜빙밴드 로우 (등 당기기)',
-              category: 'home_tool',
-              target: '등 근육 & 견갑대',
-              reps: '15회 × 3세트',
-              benefit: '소도구를 활용한 안전한 상체 후면 칼로리 연소',
-              caution: '팔꿈치를 몸통 뒤로 부드럽게 당기며 호흡을 유지하세요.',
-            ),
-          ]);
-
-        case ConditionType.hypertension:
-          // 고혈압: 발살바 호흡 절대 금기, 저중량 고반복 머신 서킷
-          candidateExercises.addAll([
-            const PrescribedExercise(
-              name: '레그 익스텐션 (저중량 머신)',
-              category: 'gym_machine',
-              target: '대퇴사두근',
-              reps: '15~20회 × 2세트',
-              benefit: '혈압 급상승 없이 안전하게 하체 혈류 순환 개선',
-              caution: '힘을 줄 때 반드시 입으로 후~ 숨을 내쉬고 절대 숨을 참지 마세요.',
-            ),
-            const PrescribedExercise(
-              name: '월 푸시업 (벽 밀기)',
-              category: 'home_bodyweight',
-              target: '상체 전반',
-              reps: '15~20회 × 3세트',
-              benefit: '가슴 압력 상승 부담이 전혀 없는 안전한 상체 근력 운동',
-              caution: '머리가 어지럽지 않도록 일정한 리듬으로 호흡하세요.',
-            ),
-            const PrescribedExercise(
-              name: '시티드 케이블 로우',
-              category: 'gym_machine',
-              target: '등 & 자세 교정',
-              reps: '15회 × 2세트',
-              benefit: '상체 혈액 순환을 돕고 안정된 자세 유지',
-              caution: '허리를 과도하게 젖히지 말고 부드럽게 당기세요.',
-            ),
-          ]);
-
-        case ConditionType.dyslipidemia:
-          // 고지혈증: 지단백 분해 효소(LPL) 활성화를 위한 복합 서킷
-          candidateExercises.addAll([
-            const PrescribedExercise(
-              name: '덤벨 루마니안 데드리프트',
-              category: 'home_tool',
-              target: '둔근 & 햄스트링',
-              reps: '12~15회 × 3세트',
-              benefit: '신체 후면 대근육 사슬을 가동하여 중성지방 대사 가속',
-              caution: '허리를 곧게 펴고 무릎을 살짝 굽혀 엉덩이를 뒤로 미세요.',
-            ),
-            const PrescribedExercise(
-              name: '슬로우 버피 (노 점프)',
-              category: 'home_bodyweight',
-              target: '전신 유산소 근력',
-              reps: '10회 × 3세트',
-              benefit: '점프 없이 안전하게 전신 대사를 끌어올려 HDL 증가에 기여',
-              caution: '손목 관절에 무리가 가지 않도록 천천히 한 발씩 움직이세요.',
-            ),
-          ]);
-
-        case ConditionType.obesity:
-          // 비만: 무릎 관절 보호 저충격 근력
-          candidateExercises.addAll([
-            const PrescribedExercise(
-              name: '시티드 레그컬 (머신)',
-              category: 'gym_machine',
-              target: '햄스트링 (허벅지 뒤쪽)',
-              reps: '15회 × 3세트',
-              benefit: '무릎 관절에 체중 부하를 전혀 주지 않는 안전한 하체 강화',
-              caution: '엉덩이가 뜨지 않도록 손잡이를 단단히 잡으세요.',
-            ),
-            const PrescribedExercise(
-              name: '글루트 브릿지 (바닥 운동)',
-              category: 'home_bodyweight',
-              target: '둔근 & 코어',
-              reps: '15회 × 3세트',
-              benefit: '서 있는 부담 없이 누워서 골반과 엉덩이 근육 활성화',
-              caution: '허리를 과도하게 꺾지 말고 엉덩이 힘으로 들어 올리세요.',
-            ),
-          ]);
-
-        case ConditionType.gout:
-          // 통풍: 젖산 축적이 적은 가벼운 순환 저항 운동
-          candidateExercises.addAll([
-            const PrescribedExercise(
-              name: '밴드 사이드 레터럴 레이즈',
-              category: 'home_tool',
-              target: '어깨 측면',
-              reps: '15회 × 2세트 (저강도)',
-              benefit: '젖산 분비를 최소화하며 상체 관절 가동성 유지',
-              caution: '가벼운 저항 밴드를 사용하여 통증 없는 범위까지만 올리세요.',
-            ),
-            const PrescribedExercise(
-              name: '머신 체스트 프레스 (저강도)',
-              category: 'gym_machine',
-              target: '상체 가슴',
-              reps: '15회 × 2세트',
-              benefit: '발가락/발목 관절에 체중 부담 없이 상체 활력 유지',
-              caution: '땀을 과도하게 흘려 탈수되지 않도록 중간중간 물을 마시세요.',
-            ),
-          ]);
-      }
-    }
-
-    // 이름 기준 중복 제거
-    final uniqueExercises = <String, PrescribedExercise>{};
-    for (final ex in candidateExercises) {
-      uniqueExercises.putIfAbsent(ex.name, () => ex);
-    }
-
-    // 환경별 필터링
+    // 2. 근력/홈트 운동 필터링
     List<PrescribedExercise> filteredList;
-    if (environment == ExerciseEnvironment.gym) {
-      filteredList = uniqueExercises.values
-          .where((e) => e.category == 'gym_machine')
-          .toList();
-    } else if (environment == ExerciseEnvironment.home) {
-      filteredList = uniqueExercises.values
-          .where((e) => e.category == 'home_bodyweight' || e.category == 'home_tool')
-          .toList();
+
+    // 전달받은 JSON 데이터셋이 있거나 캐시된 데이터가 있을 경우
+    final lds = localDataSource ?? ExerciseLocalDataSource();
+    final rawList = exerciseDatabase ?? lds.getLoadedExercisesSync();
+
+    if (rawList.isNotEmpty) {
+      filteredList = lds.filterExercises(
+        rawData: rawList,
+        conditions: conditions,
+        environment: environment,
+        selectedExerciseNames: selectedExerciseNames,
+      );
     } else {
-      filteredList = uniqueExercises.values.toList();
+      // JSON 미로드 시 인메모리 기본 임상 데이터셋 활용
+      filteredList = _generateFallbackExercises(
+        conditions: conditions,
+        environment: environment,
+        selectedExerciseNames: selectedExerciseNames,
+      );
     }
 
-    // 사용자가 특정 운동들을 선택한 경우 해당 운동들만 포함
-    if (selectedExerciseNames != null && selectedExerciseNames.isNotEmpty) {
-      filteredList = filteredList
-          .where((e) => selectedExerciseNames.contains(e.name))
-          .toList();
-    } else if (filteredList.length > 5) {
-      // 최대 4~5종목 균형 추천
-      filteredList = filteredList.sublist(0, 5);
-    } else if (filteredList.isEmpty) {
-      // 기본 폴백 안전 운동
+    if (filteredList.isEmpty) {
       filteredList = [
         const PrescribedExercise(
-          name: '체어 스쿼트',
+          name: '체어 스쿼트 (의자 스쿼트)',
           category: 'home_bodyweight',
-          target: '하체',
-          reps: '12회 × 3세트',
-          benefit: '안전한 대근육 포도당 대사',
+          target: '하체 허벅지 & 둔근',
+          reps: '15회 × 3세트',
+          benefit: '안전한 대근육 포도당 대사 촉진',
           caution: '무릎 통증 시 깊이를 조절하세요.',
+          source: '국민체력100 (성인 기초)',
         ),
       ];
     }
@@ -337,5 +178,220 @@ class PrescriptionRepository {
       exercises: filteredList,
       safetyWarnings: warnings,
     );
+  }
+
+  /// 폴백용 인메모리 기본 임상 처방
+  List<PrescribedExercise> _generateFallbackExercises({
+    required Set<ConditionType> conditions,
+    required ExerciseEnvironment environment,
+    Set<String>? selectedExerciseNames,
+  }) {
+    final candidateExercises = <PrescribedExercise>[];
+
+    for (final cond in conditions) {
+      switch (cond) {
+        case ConditionType.prediabetes:
+          candidateExercises.addAll([
+            const PrescribedExercise(
+              name: '시티드 레그프레스',
+              category: 'gym_machine',
+              target: '하체 대퇴사두근 & 둔근',
+              reps: '12~15회 × 3세트',
+              benefit: '전신 포도당의 약 70%를 소비하는 대근육 집중 활성화',
+              caution: '발판을 어깨너비로 편안히 잡고 무릎을 잠그지 마세요.',
+              source: '국민체력100',
+              jointCautions: ['knee'],
+            ),
+            const PrescribedExercise(
+              name: '체어 스쿼트 (의자 스쿼트)',
+              category: 'home_bodyweight',
+              target: '허벅지 & 둔근',
+              reps: '15회 × 3세트',
+              benefit: '식후 실내에서 바로 할 수 있는 가장 강력한 혈당 흡수 운동',
+              caution: '앉을 때 엉덩이를 뒤로 빼고 체중을 발뒤꿈치에 실으세요.',
+              source: '국민체력100',
+              jointCautions: ['knee'],
+            ),
+            const PrescribedExercise(
+              name: '카프 레이즈 (발뒤꿈치 들기)',
+              category: 'home_bodyweight',
+              target: '종아리 가자미근',
+              reps: '20회 × 3세트',
+              benefit: '가자미근의 인슐린 비의존성 포도당 흡수 촉진',
+              caution: '균형을 위해 벽이나 의자를 살짝 짚고 수행하세요.',
+              source: '국민체력100',
+            ),
+            const PrescribedExercise(
+              name: '랫 풀 다운',
+              category: 'gym_machine',
+              target: '등(광배근)',
+              reps: '12회 × 3세트',
+              benefit: '상체 글리코겐 저장소 확보를 위한 대근육 발달',
+              caution: '상체를 과도하게 뒤로 젖히지 말고 가슴을 펴세요.',
+              source: '국민체력100',
+              jointCautions: ['shoulder'],
+            ),
+          ]);
+        case ConditionType.fattyLiver:
+          candidateExercises.addAll([
+            const PrescribedExercise(
+              name: '체스트 프레스 머신',
+              category: 'gym_machine',
+              target: '가슴 & 삼두근',
+              reps: '12회 × 3세트',
+              benefit: '상체 대근육 자극으로 기초대사량 증대 및 지방 산화 촉진',
+              caution: '어깨가 위로 으쓱 올라가지 않게 견갑골을 고정하세요.',
+              source: '국민체력100',
+              jointCautions: ['shoulder'],
+            ),
+            const PrescribedExercise(
+              name: '월 싯 (벽 대고 버티기)',
+              category: 'home_bodyweight',
+              target: '대퇴사두근 & 코어',
+              reps: '30초 유지 × 3세트',
+              benefit: '등척성 근수축을 통해 관절 부담 없이 지방 분해 효소 활성화',
+              caution: '무릎 각도가 90도를 넘지 않도록 편안한 높이로 유지하세요.',
+              source: '국민체력100',
+              jointCautions: ['knee'],
+            ),
+            const PrescribedExercise(
+              name: '튜빙밴드 로우 (등 당기기)',
+              category: 'home_tool',
+              target: '등 근육 & 견갑대',
+              reps: '15회 × 3세트',
+              benefit: '소도구를 활용한 안전한 상체 후면 칼로리 연소',
+              caution: '팔꿈치를 몸통 뒤로 부드럽게 당기며 호흡을 유지하세요.',
+              source: '국민체력100',
+              jointCautions: ['shoulder'],
+            ),
+          ]);
+        case ConditionType.hypertension:
+          candidateExercises.addAll([
+            const PrescribedExercise(
+              name: '레그 익스텐션 (저중량 머신)',
+              category: 'gym_machine',
+              target: '대퇴사두근',
+              reps: '15~20회 × 2세트',
+              benefit: '혈압 급상승 없이 안전하게 하체 혈류 순환 개선',
+              caution: '힘을 줄 때 반드시 입으로 후~ 숨을 내쉬고 절대 숨을 참지 마세요.',
+              source: '국민체력100',
+            ),
+            const PrescribedExercise(
+              name: '월 푸시업 (벽 밀기)',
+              category: 'home_bodyweight',
+              target: '상체 전반',
+              reps: '15~20회 × 3세트',
+              benefit: '가슴 압력 상승 부담이 전혀 없는 안전한 상체 근력 운동',
+              caution: '머리가 어지럽지 않도록 일정한 리듬으로 호흡하세요.',
+              source: '국민체력100',
+              jointCautions: ['shoulder'],
+            ),
+            const PrescribedExercise(
+              name: '시티드 케이블 로우',
+              category: 'gym_machine',
+              target: '등 & 자세 교정',
+              reps: '15회 × 2세트',
+              benefit: '상체 혈액 순환을 돕고 안정된 자세 유지',
+              caution: '허리를 과도하게 젖히지 말고 부드럽게 당기세요.',
+              source: '국민체력100',
+              jointCautions: ['shoulder', 'back'],
+            ),
+          ]);
+        case ConditionType.dyslipidemia:
+          candidateExercises.addAll([
+            const PrescribedExercise(
+              name: '덤벨 루마니안 데드리프트',
+              category: 'home_tool',
+              target: '둔근 & 햄스트링',
+              reps: '12~15회 × 3세트',
+              benefit: '신체 후면 대근육 사슬을 가동하여 중성지방 대사 가속',
+              caution: '허리를 곧게 펴고 무릎을 살짝 굽혀 엉덩이를 뒤로 미세요.',
+              source: '국민체력100',
+              jointCautions: ['back'],
+            ),
+            const PrescribedExercise(
+              name: '슬로우 버피 (노 점프)',
+              category: 'home_bodyweight',
+              target: '전신 유산소 근력',
+              reps: '10회 × 3세트',
+              benefit: '점프 없이 안전하게 전신 대사를 끌어올려 HDL 증가에 기여',
+              caution: '손목 관절에 무리가 가지 않도록 천천히 한 발씩 움직이세요.',
+              source: '국민체력100',
+              jointCautions: ['knee', 'back', 'shoulder'],
+            ),
+          ]);
+        case ConditionType.obesity:
+          candidateExercises.addAll([
+            const PrescribedExercise(
+              name: '시티드 레그컬 (머신)',
+              category: 'gym_machine',
+              target: '햄스트링 (허벅지 뒤쪽)',
+              reps: '15회 × 3세트',
+              benefit: '무릎 관절에 체중 부하를 전혀 주지 않는 안전한 하체 강화',
+              caution: '엉덩이가 뜨지 않도록 손잡이를 단단히 잡으세요.',
+              source: '국민체력100',
+            ),
+            const PrescribedExercise(
+              name: '글루트 브릿지 (바닥 운동)',
+              category: 'home_bodyweight',
+              target: '둔근 & 코어',
+              reps: '15회 × 3세트',
+              benefit: '서 있는 부담 없이 누워서 골반과 엉덩이 근육 활성화',
+              caution: '허리를 과도하게 꺾지 말고 엉덩이 힘으로 들어 올리세요.',
+              source: '국민체력100',
+              jointCautions: ['back'],
+            ),
+          ]);
+        case ConditionType.gout:
+          candidateExercises.addAll([
+            const PrescribedExercise(
+              name: '밴드 사이드 레터럴 레이즈',
+              category: 'home_tool',
+              target: '어깨 측면',
+              reps: '15회 × 2세트 (저강도)',
+              benefit: '젖산 분비를 최소화하며 상체 관절 가동성 유지',
+              caution: '가벼운 저항 밴드를 사용하여 통증 없는 범위까지만 올리세요.',
+              source: '국민체력100',
+              jointCautions: ['shoulder'],
+            ),
+            const PrescribedExercise(
+              name: '머신 체스트 프레스 (저강도)',
+              category: 'gym_machine',
+              target: '상체 가슴',
+              reps: '15회 × 2세트',
+              benefit: '발가락/발목 관절에 체중 부담 없이 상체 활력 유지',
+              caution: '땀을 과도하게 흘려 탈수되지 않도록 물을 마시세요.',
+              source: '국민체력100',
+              jointCautions: ['shoulder'],
+            ),
+          ]);
+      }
+    }
+
+    final uniqueExercises = <String, PrescribedExercise>{};
+    for (final ex in candidateExercises) {
+      uniqueExercises.putIfAbsent(ex.name, () => ex);
+    }
+
+    List<PrescribedExercise> filteredList;
+    if (environment == ExerciseEnvironment.gym) {
+      filteredList = uniqueExercises.values
+          .where((e) => e.category == 'gym_machine')
+          .toList();
+    } else {
+      filteredList = uniqueExercises.values
+          .where((e) => e.category == 'home_bodyweight' || e.category == 'home_tool')
+          .toList();
+    }
+
+    if (selectedExerciseNames != null && selectedExerciseNames.isNotEmpty) {
+      filteredList = filteredList
+          .where((e) => selectedExerciseNames.contains(e.name))
+          .toList();
+    } else if (filteredList.length > 5) {
+      filteredList = filteredList.sublist(0, 5);
+    }
+
+    return filteredList;
   }
 }

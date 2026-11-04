@@ -39,7 +39,7 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
   final Set<String> _selectedPainPoints = <String>{};
   List<PrescribedExercise> _recommendedExercises = [];
   List<RoutineTemplate> _savedTemplates = [];
-  bool _isLoading = true;
+  bool _isLoading = false;
 
   String? _getContraindicationWarning(String exerciseName) {
     if (_selectedPainPoints.contains('무릎 관절/통증')) {
@@ -104,23 +104,32 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
       _targetSets = template.targetSets;
       _selectedExerciseNames.addAll(template.selectedExerciseNames);
     } else {
-      _environment = ExerciseEnvironment.home;
-      _aerobicType = 'walking';
-      _aerobicDuration = 35;
+      _environment = ExerciseEnvironment.gym;
+      _aerobicType = 'treadmill';
+      _aerobicDuration = 40;
       _aerobicSpm = 115;
       _targetSets = 3;
     }
 
+    _refreshRecommendedExercises();
     _loadInitialData();
   }
 
   Future<void> _loadInitialData() async {
-    setState(() => _isLoading = true);
     _savedTemplates = await _templateRepository.getTemplates(
       conditions: widget.selectedConditions,
     );
-    _refreshRecommendedExercises();
-    setState(() => _isLoading = false);
+    await _prescriptionRepository.getPrescription(
+      conditions: widget.selectedConditions,
+      environment: _environment,
+      aerobicType: _aerobicType,
+    );
+    if (mounted) {
+      setState(() {
+        _refreshRecommendedExercises();
+        _isLoading = false;
+      });
+    }
   }
 
   void _refreshRecommendedExercises({bool updateDuration = true}) {
@@ -1031,13 +1040,40 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
                                     ),
                                   ],
                                   const SizedBox(height: 4),
-                                  Text(
-                                    '타깃: ${exercise.target}',
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      color: AppColors.textSecondary,
-                                    ),
+                                  Wrap(
+                                    crossAxisAlignment:
+                                        WrapCrossAlignment.center,
+                                    spacing: 6,
+                                    runSpacing: 4,
+                                    children: [
+                                      Text(
+                                        '타깃: ${exercise.target}',
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                          color: AppColors.textSecondary,
+                                        ),
+                                      ),
+                                      if (exercise.source != null)
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 5, vertical: 1.5),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.primary
+                                                .withValues(alpha: 0.08),
+                                            borderRadius:
+                                                BorderRadius.circular(4),
+                                          ),
+                                          child: Text(
+                                            exercise.source!,
+                                            style: const TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w600,
+                                              color: AppColors.primary,
+                                            ),
+                                          ),
+                                        ),
+                                    ],
                                   ),
                                   const SizedBox(height: 4),
                                   Text(

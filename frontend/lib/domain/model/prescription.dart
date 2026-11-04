@@ -30,6 +30,8 @@ class PrescribedExercise {
     required this.reps,
     required this.benefit,
     required this.caution,
+    this.source,
+    this.jointCautions = const [],
   });
 
   final String name;
@@ -38,6 +40,8 @@ class PrescribedExercise {
   final String reps;
   final String benefit;
   final String caution;
+  final String? source; // 국민체력100 출처 등
+  final List<String> jointCautions; // 'knee', 'back', 'shoulder' 등
 }
 
 /// 종합 운동 처방 결과 모델
