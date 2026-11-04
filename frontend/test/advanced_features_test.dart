@@ -41,7 +41,7 @@ void main() {
     expect(find.text('무릎 관절 부하 주의'), findsWidgets);
   });
 
-  testWidgets('ExerciseSetTrackerDialog: Safety exit dialog and blood sugar logging',
+  testWidgets('ExerciseSetTrackerDialog: completes all sets and shows completion banner',
       (WidgetTester tester) async {
     await tester.binding.setSurfaceSize(const Size(430, 932));
     addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -63,7 +63,6 @@ void main() {
           body: ExerciseSetTrackerDialog(
             exercise: testExercise,
             targetSets: 2,
-            conditions: const ['전당뇨'],
             onExerciseCompleted: (sets) => completed = sets,
             onUpdateTargetSets: (_, _) {},
           ),
@@ -83,9 +82,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(completed, 2);
-
-    // 2. [기획 3] 운동 전/후 혈당 입력 섹션 노출 확인
-    expect(find.text('운동 전/후 혈당 변화 기록 (선택)'), findsOneWidget);
+    expect(find.textContaining('세트 완료'), findsOneWidget);
+    expect(find.text('완료 및 닫기'), findsOneWidget);
   });
 
   testWidgets('WeeklyStreakCard: Rest Day (안심 휴식일) and Medical Report dialog test',

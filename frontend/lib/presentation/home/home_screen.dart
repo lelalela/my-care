@@ -367,7 +367,6 @@ class HomeScreen extends StatelessWidget {
       builder: (ctx) => ExerciseSetTrackerDialog(
         exercise: exercise,
         targetSets: targetSets,
-        conditions: state.conditions.map((c) => c.name).toList(),
         onExerciseCompleted: (sets) => onLogStrength(exercise, sets),
         onUpdateTargetSets: (newSets, applyToAll) {
           onAction(

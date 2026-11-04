@@ -2,9 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../core/services/feedback_service.dart';
-import '../../../data/repository/workout_history_repository.dart';
 import '../../../domain/model/prescription.dart';
-import '../../../domain/model/workout_record.dart';
 import '../../../ui/app_colors.dart';
 import 'set_count_input_dialog.dart';
 
@@ -16,14 +14,12 @@ class ExerciseSetTrackerDialog extends StatefulWidget {
     required this.targetSets,
     required this.onExerciseCompleted,
     required this.onUpdateTargetSets,
-    this.conditions = const ['전당뇨', '고혈압'],
   });
 
   final PrescribedExercise exercise;
   final int targetSets;
   final ValueChanged<int> onExerciseCompleted;
   final void Function(int newSets, bool applyToAll) onUpdateTargetSets;
-  final List<String> conditions;
 
   @override
   State<ExerciseSetTrackerDialog> createState() =>
@@ -37,14 +33,6 @@ class _ExerciseSetTrackerDialogState extends State<ExerciseSetTrackerDialog> {
   int _restSecondsRemaining = 60;
   Timer? _restTimer;
   late final FeedbackService _feedbackService;
-  final WorkoutHistoryRepository _historyRepository =
-      const WorkoutHistoryRepository();
-
-  // 혈당 입력 상태
-  final TextEditingController _preGlucoseController = TextEditingController();
-  final TextEditingController _postGlucoseController = TextEditingController();
-  bool _showBloodSugarInput = false;
-  int? _recordedDrop;
 
   @override
   void initState() {
@@ -57,8 +45,6 @@ class _ExerciseSetTrackerDialogState extends State<ExerciseSetTrackerDialog> {
   void dispose() {
     _restTimer?.cancel();
     _feedbackService.dispose();
-    _preGlucoseController.dispose();
-    _postGlucoseController.dispose();
     super.dispose();
   }
 
@@ -101,7 +87,6 @@ class _ExerciseSetTrackerDialogState extends State<ExerciseSetTrackerDialog> {
     _restTimer?.cancel();
     setState(() {
       _isResting = false;
-      _showBloodSugarInput = true;
     });
     _feedbackService.playCompletionFeedback();
     widget.onExerciseCompleted(_completedSets);
@@ -146,36 +131,6 @@ class _ExerciseSetTrackerDialogState extends State<ExerciseSetTrackerDialog> {
     setState(() {
       _isResting = false;
     });
-  }
-
-  /// 혈당 기록 저장
-  Future<void> _saveBloodSugarData() async {
-    final pre = int.tryParse(_preGlucoseController.text.trim());
-    final post = int.tryParse(_postGlucoseController.text.trim());
-
-    if (pre != null && post != null) {
-      final drop = pre - post;
-      setState(() {
-        _recordedDrop = drop;
-      });
-
-      // 최신 운동 기록에 혈당 업데이트 저장
-      final record = WorkoutRecord(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        completedAt: DateTime.now(),
-        durationMinutes: 15,
-        steps: 0,
-        calories: 60,
-        spm: 0,
-        conditions: widget.conditions,
-        exerciseName: widget.exercise.name,
-        completedSets: _completedSets,
-        preBloodSugar: pre,
-        postBloodSugar: post,
-      );
-      await _historyRepository.saveRecord(record);
-      HapticFeedback.heavyImpact();
-    }
   }
 
   @override
@@ -538,125 +493,6 @@ class _ExerciseSetTrackerDialogState extends State<ExerciseSetTrackerDialog> {
                         ),
                       ],
                     ),
-                  ],
-                ),
-              ),
-            ],
-
-            // ─── [기획 3] 운동 전후 혈당(선택) 로깅 섹션 ───
-            if (allDone || _showBloodSugarInput) ...[
-              const SizedBox(height: 14),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.secondaryContainer.withValues(alpha: 0.35),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(
-                      color: AppColors.secondary.withValues(alpha: 0.3)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: const [
-                        Icon(Icons.bloodtype_outlined,
-                            size: 18, color: AppColors.secondary),
-                        SizedBox(width: 6),
-                        Text(
-                          '운동 전/후 혈당 변화 기록 (선택)',
-                          style: TextStyle(
-                            fontSize: 13.5,
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.secondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      '근력 운동으로 인한 식후 혈당 강하 효과를 확인해 보세요.',
-                      style: TextStyle(
-                        fontSize: 11.5,
-                        color: AppColors.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: _preGlucoseController,
-                            keyboardType: TextInputType.number,
-                            decoration: InputDecoration(
-                              labelText: '운동 전 (mg/dL)',
-                              hintText: '예: 165',
-                              isDense: true,
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 10),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        const Icon(Icons.arrow_forward,
-                            size: 16, color: AppColors.outline),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: TextField(
-                            controller: _postGlucoseController,
-                            keyboardType: TextInputType.number,
-                            decoration: InputDecoration(
-                              labelText: '운동 후 (mg/dL)',
-                              hintText: '예: 128',
-                              isDense: true,
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 10),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    if (_recordedDrop != null)
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          children: [
-                            const Text('📉 ', style: TextStyle(fontSize: 16)),
-                            Expanded(
-                              child: Text(
-                                _recordedDrop! > 0
-                                    ? '식후 혈당이 $_recordedDrop mg/dL 안정화되었습니다!'
-                                    : '혈당 기록이 저장되었습니다.',
-                                style: const TextStyle(
-                                  fontSize: 12.5,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.primary,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    else
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: TextButton.icon(
-                          onPressed: _saveBloodSugarData,
-                          icon: const Icon(Icons.check, size: 16),
-                          label: const Text('혈당 저장',
-                              style: TextStyle(fontSize: 12)),
-                        ),
-                      ),
                   ],
                 ),
               ),

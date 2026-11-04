@@ -137,7 +137,6 @@ class WorkoutHistoryRepository {
     int workoutDaysCount = 0;
     int restDaysCount = 0;
     List<int> validSpmList = [];
-    List<int> bloodSugarDrops = [];
 
     final activeDays = <int>{};
     for (final r in weeklyRecords) {
@@ -151,10 +150,6 @@ class WorkoutHistoryRepository {
           totalStrengthSets += r.completedSets!;
         }
         activeDays.add(r.completedAt.weekday);
-
-        if (r.preBloodSugar != null && r.postBloodSugar != null) {
-          bloodSugarDrops.add(r.preBloodSugar! - r.postBloodSugar!);
-        }
       }
     }
     workoutDaysCount = activeDays.length;
@@ -162,10 +157,6 @@ class WorkoutHistoryRepository {
     final avgSpm = validSpmList.isEmpty
         ? 0
         : (validSpmList.reduce((a, b) => a + b) / validSpmList.length).round();
-
-    final avgDrop = bloodSugarDrops.isEmpty
-        ? 0
-        : (bloodSugarDrops.reduce((a, b) => a + b) / bloodSugarDrops.length).round();
 
     // 목표 150분 대비 달성률 (%)
     final complianceRate = ((totalMinutes / 150.0) * 100).clamp(0, 100).round();
@@ -179,8 +170,6 @@ class WorkoutHistoryRepository {
       'restDaysCount': restDaysCount,
       'totalStrengthSets': totalStrengthSets,
       'avgSpm': avgSpm,
-      'avgBloodSugarDrop': avgDrop,
-      'hasBloodSugarData': bloodSugarDrops.isNotEmpty,
     };
   }
 }

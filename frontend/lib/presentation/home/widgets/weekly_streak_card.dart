@@ -403,9 +403,6 @@ class WeeklyStreakCard extends StatelessWidget {
                   '근력 운동 완수 세트', '${stats['totalStrengthSets']}세트'),
               _buildReportRow(
                   '주간 실천 일수', '${stats['workoutDaysCount']}일 운동 / ${stats['restDaysCount']}일 안심휴식'),
-              if (stats['hasBloodSugarData'] == true)
-                _buildReportRow('운동 후 평균 혈당 강하',
-                    '▼ ${stats['avgBloodSugarDrop']} mg/dL 개선'),
             ],
           ),
         ),
@@ -602,19 +599,6 @@ class WeeklyStreakCard extends StatelessWidget {
                                         color: AppColors.textSecondary,
                                       ),
                                     ),
-                                    if (r.preBloodSugar != null &&
-                                        r.postBloodSugar != null)
-                                      Padding(
-                                        padding: const EdgeInsets.only(top: 2),
-                                        child: Text(
-                                          '혈당: ${r.preBloodSugar} ➡️ ${r.postBloodSugar} mg/dL (▼${r.preBloodSugar! - r.postBloodSugar!}mg/dL)',
-                                          style: const TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w700,
-                                            color: AppColors.primary,
-                                          ),
-                                        ),
-                                      ),
                                   ],
                                 ),
                               ),
