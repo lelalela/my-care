@@ -632,8 +632,11 @@ class _DailyExerciseItemTile extends StatelessWidget {
                       ),
                       tooltip: '자세 및 가이드 보기',
                       visualDensity: VisualDensity.compact,
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
+                      padding: const EdgeInsets.all(6),
+                      constraints: const BoxConstraints(
+                        minWidth: 32,
+                        minHeight: 32,
+                      ),
                       onPressed: () => ExerciseDetailDialog.show(context, item),
                     ),
                   ],

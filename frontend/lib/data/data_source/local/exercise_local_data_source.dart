@@ -41,8 +41,16 @@ class ExerciseLocalDataSource {
   }) {
     if (rawData.isEmpty) return [];
 
-    final conditionIds = conditions.map((c) => c.id).toSet();
-    final conditionNames = conditions.map((c) => c.name).toSet();
+    final conditionKeys = <String>{};
+    for (final c in conditions) {
+      conditionKeys.add(c.id);
+      conditionKeys.add(c.name);
+      conditionKeys.add(c.id.replaceAll('_', '').toLowerCase());
+      if (c == ConditionType.fattyLiver) {
+        conditionKeys.add('fattyLiver');
+        conditionKeys.add('fatty_liver');
+      }
+    }
     final matchedList = <Map<String, dynamic>>[];
 
     for (final item in rawData) {
@@ -63,8 +71,12 @@ class ExerciseLocalDataSource {
 
       // 질환 연관성 필터링 (선택 질환 id 또는 name과 하나 이상 교집합)
       if (conditions.isNotEmpty &&
-          itemConditions.intersection(conditionIds).isEmpty &&
-          itemConditions.intersection(conditionNames).isEmpty) {
+          itemConditions.intersection(conditionKeys).isEmpty &&
+          itemConditions
+              .map((c) => c.replaceAll('_', '').toLowerCase())
+              .toSet()
+              .intersection(conditionKeys)
+              .isEmpty) {
         continue;
       }
 

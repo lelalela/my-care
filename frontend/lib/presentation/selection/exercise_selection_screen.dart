@@ -127,7 +127,14 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
     );
     if (mounted) {
       setState(() {
+        if (widget.initialTemplate == null) {
+          _selectedExerciseNames.clear();
+        }
         _refreshRecommendedExercises();
+        if (widget.initialTemplate == null) {
+          _selectedExerciseNames
+              .addAll(_recommendedExercises.map((e) => e.name));
+        }
         _isLoading = false;
       });
     }
@@ -1017,14 +1024,17 @@ class _ExerciseSelectionScreenState extends State<ExerciseSelectionScreen> {
                                           IconButton(
                                             icon: const Icon(
                                               Icons.info_outline_rounded,
-                                              size: 18,
+                                              size: 20,
                                               color: AppColors.primary,
                                             ),
                                             tooltip: '자세 및 가이드 보기',
                                             visualDensity:
                                                 VisualDensity.compact,
-                                            padding: EdgeInsets.zero,
-                                            constraints: const BoxConstraints(),
+                                            padding: const EdgeInsets.all(6),
+                                            constraints: const BoxConstraints(
+                                              minWidth: 32,
+                                              minHeight: 32,
+                                            ),
                                             onPressed: () =>
                                                 ExerciseDetailDialog.show(
                                                     context, exercise),
