@@ -36,12 +36,14 @@ void main() {
       find.descendant(of: find.byType(WalkingScreen), matching: find.text('115')),
       findsOneWidget,
     );
+    expect(find.text('예상 속도 약 5.2 km/h'), findsOneWidget);
     expect(find.text('일시 정지'), findsOneWidget);
 
     // 6. SPM 속도 조절 (+5 SPM)
     await tester.tap(find.text('5 SPM 빠르게'));
     await tester.pump(const Duration(milliseconds: 300));
     expect(find.text('120'), findsOneWidget);
+    expect(find.text('예상 속도 약 5.4 km/h'), findsOneWidget);
 
     // 7. 일시 정지 토글
     await tester.tap(find.text('일시 정지'));

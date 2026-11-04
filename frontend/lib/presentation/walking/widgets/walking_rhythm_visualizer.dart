@@ -71,6 +71,7 @@ class _WalkingRhythmVisualizerState extends State<WalkingRhythmVisualizer>
       animation: _scaleAnimation,
       builder: (context, child) {
         final scale = widget.isActive ? _scaleAnimation.value : 1.0;
+        final speedKmh = (widget.spm * 0.045).toStringAsFixed(1);
 
         return Center(
           child: Stack(
@@ -111,16 +112,16 @@ class _WalkingRhythmVisualizerState extends State<WalkingRhythmVisualizer>
                   children: [
                     Icon(
                       Icons.directions_walk,
-                      size: 28,
+                      size: 26,
                       color: widget.isActive
                           ? AppColors.primary
                           : AppColors.textTertiary,
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 4),
                     Text(
                       '${widget.spm}',
                       style: TextStyle(
-                        fontSize: 48,
+                        fontSize: 46,
                         fontWeight: FontWeight.w900,
                         color: widget.isActive
                             ? AppColors.textPrimary
@@ -133,11 +134,31 @@ class _WalkingRhythmVisualizerState extends State<WalkingRhythmVisualizer>
                     Text(
                       'SPM (분당 걸음수)',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 11.5,
                         fontWeight: FontWeight.w600,
                         color: widget.isActive
                             ? AppColors.primary
                             : AppColors.textTertiary,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: widget.isActive
+                            ? AppColors.primaryContainer.withValues(alpha: 0.6)
+                            : AppColors.surfaceContainerHigh,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        '예상 속도 약 $speedKmh km/h',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: widget.isActive
+                              ? AppColors.primary
+                              : AppColors.textTertiary,
+                        ),
                       ),
                     ),
                   ],
