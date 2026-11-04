@@ -241,9 +241,32 @@ class _ExerciseDetailDialogState extends State<ExerciseDetailDialog> {
                   FilledButton.icon(
                     onPressed: () async {
                       final uri = Uri.parse(ex.videoUrl!);
-                      if (await canLaunchUrl(uri)) {
-                        await launchUrl(uri,
-                            mode: LaunchMode.externalApplication);
+                      try {
+                        final launched = await launchUrl(
+                          uri,
+                          mode: LaunchMode.externalApplication,
+                        );
+                        if (!launched) {
+                          await launchUrl(
+                            uri,
+                            mode: LaunchMode.platformDefault,
+                          );
+                        }
+                      } catch (e) {
+                        try {
+                          await launchUrl(
+                            uri,
+                            mode: LaunchMode.platformDefault,
+                          );
+                        } catch (e2) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('동영상 링크를 열 수 없습니다: $e2'),
+                              ),
+                            );
+                          }
+                        }
                       }
                     },
                     style: FilledButton.styleFrom(
