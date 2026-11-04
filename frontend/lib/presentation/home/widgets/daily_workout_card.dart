@@ -10,6 +10,7 @@ class DailyWorkoutCard extends StatefulWidget {
     required this.exercises,
     required this.defaultTargetSets,
     required this.customExerciseSets,
+    this.aerobicType = 'walking',
     required this.onStartWalking,
     required this.onExerciseTapped,
     required this.onConfigureGlobalSets,
@@ -19,6 +20,7 @@ class DailyWorkoutCard extends StatefulWidget {
   final List<PrescribedExercise> exercises;
   final int defaultTargetSets;
   final Map<String, int> customExerciseSets;
+  final String aerobicType;
   final ValueChanged<int> onStartWalking;
   final ValueChanged<PrescribedExercise> onExerciseTapped;
   final VoidCallback onConfigureGlobalSets;
@@ -169,7 +171,9 @@ class _DailyWorkoutCardState extends State<DailyWorkoutCard> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          '식후 맞춤 유산소 (워킹)',
+                          widget.aerobicType == 'treadmill'
+                              ? '트레드밀 (러닝머신)'
+                              : '식후 맞춤 유산소 (워킹)',
                           style: theme.textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.w700,
                             fontSize: 15,
@@ -434,7 +438,9 @@ class _DailyWorkoutCardState extends State<DailyWorkoutCard> {
                     onPressed: () => widget.onStartWalking(_selectedDuration),
                     icon: const Icon(Icons.play_arrow_rounded, size: 20),
                     label: Text(
-                      '${aerobic.cadenceSpm} SPM 워킹 코칭 시작 ($_selectedDuration분)',
+                      widget.aerobicType == 'treadmill'
+                          ? '${aerobic.cadenceSpm} SPM 트레드밀 코칭 시작 ($_selectedDuration분)'
+                          : '${aerobic.cadenceSpm} SPM 워킹 코칭 시작 ($_selectedDuration분)',
                       style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
                     style: FilledButton.styleFrom(

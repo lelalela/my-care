@@ -16,10 +16,20 @@ class HomeRoot extends StatefulWidget {
     super.key,
     required this.selectedConditions,
     required this.environment,
+    this.selectedExerciseNames,
+    this.aerobicType = 'walking',
+    this.aerobicDurationMinutes = 35,
+    this.aerobicTargetSpm = 115,
+    this.targetSets = 3,
   });
 
   final Set<ConditionType> selectedConditions;
   final ExerciseEnvironment environment;
+  final Set<String>? selectedExerciseNames;
+  final String aerobicType;
+  final int aerobicDurationMinutes;
+  final int aerobicTargetSpm;
+  final int targetSets;
 
   @override
   State<HomeRoot> createState() => _HomeRootState();
@@ -34,6 +44,11 @@ class _HomeRootState extends State<HomeRoot> {
     _viewModel = HomeViewModel(
       initialConditions: widget.selectedConditions,
       initialEnvironment: widget.environment,
+      selectedExerciseNames: widget.selectedExerciseNames,
+      aerobicType: widget.aerobicType,
+      aerobicDurationMinutes: widget.aerobicDurationMinutes,
+      aerobicTargetSpm: widget.aerobicTargetSpm,
+      targetSets: widget.targetSets,
     );
   }
 
@@ -190,6 +205,7 @@ class HomeScreen extends StatelessWidget {
               exercises: prescription.exercises,
               defaultTargetSets: state.defaultTargetSets,
               customExerciseSets: state.customExerciseSets,
+              aerobicType: state.aerobicType,
               onStartWalking: (durationMinutes) async {
                 await Navigator.of(context).push(
                   MaterialPageRoute(

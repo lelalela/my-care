@@ -15,6 +15,10 @@ class PrescriptionRepository {
   Future<WorkoutPrescription> getPrescription({
     required Set<ConditionType> conditions,
     required ExerciseEnvironment environment,
+    Set<String>? selectedExerciseNames,
+    String? aerobicType,
+    int? customAerobicDuration,
+    int? customAerobicCadence,
   }) async {
     if (apiClient != null) {
       final remote = await apiClient!.fetchRecommendation(
@@ -23,20 +27,31 @@ class PrescriptionRepository {
       );
       if (remote != null) return remote;
     }
-    return generatePrescription(conditions: conditions, environment: environment);
+    return generatePrescription(
+      conditions: conditions,
+      environment: environment,
+      selectedExerciseNames: selectedExerciseNames,
+      aerobicType: aerobicType,
+      customAerobicDuration: customAerobicDuration,
+      customAerobicCadence: customAerobicCadence,
+    );
   }
 
   /// 동기 처방 생성 (6대 질환별 차별화된 임상 데이터셋 기반)
   WorkoutPrescription generatePrescription({
     required Set<ConditionType> conditions,
     required ExerciseEnvironment environment,
+    Set<String>? selectedExerciseNames,
+    String? aerobicType,
+    int? customAerobicDuration,
+    int? customAerobicCadence,
   }) {
     final conditionList = conditions.toList();
     final names = conditionList.map((c) => c.name).toList();
 
     // 1. 유산소 지속 시간 및 케이던스 병합
-    int targetDuration = 35;
-    int targetCadence = 110;
+    int targetDuration = customAerobicDuration ?? 35;
+    int targetCadence = customAerobicCadence ?? 110;
     int cadenceMin = 100;
     int cadenceMax = 120;
     String timingMessage = '가장 편안한 시간대에 지속 가능한 속도로 걷기';
@@ -44,20 +59,20 @@ class PrescriptionRepository {
 
     if (conditions.contains(ConditionType.prediabetes)) {
       timingMessage = '식후 30~60분 이내 (혈당 스파이크 억제 골든타임)';
-      targetCadence = 115;
+      if (customAerobicCadence == null) targetCadence = 115;
       cadenceMin = 105;
       cadenceMax = 125;
-      targetDuration = 40;
+      if (customAerobicDuration == null) targetDuration = 40;
       tips.add('식후 30분 시점에 걷기 시작 시 식후 혈당 급상승을 최대 30% 억제합니다.');
     }
 
     if (conditions.contains(ConditionType.fattyLiver)) {
-      if (targetDuration < 40) targetDuration = 40;
+      if (customAerobicDuration == null && targetDuration < 40) targetDuration = 40;
       tips.add('40분 이상 지속적인 유산소 운동이 간세포 내 중성지방 연소를 극대화합니다.');
     }
 
     if (conditions.contains(ConditionType.dyslipidemia)) {
-      if (targetDuration < 45) targetDuration = 45;
+      if (customAerobicDuration == null && targetDuration < 45) targetDuration = 45;
       tips.add('주 4~5회, 45분 이상 유산소를 지속할 때 혈중 HDL이 증가합니다.');
     }
 
@@ -66,8 +81,13 @@ class PrescriptionRepository {
     }
 
     if (conditions.contains(ConditionType.gout)) {
-      if (targetCadence > 110) targetCadence = 110;
+      if (customAerobicCadence == null && targetCadence > 110) targetCadence = 110;
       tips.add('탈수를 막기 위해 운동 전후 및 도중에 물을 충분히 섭취해 주세요.');
+    }
+
+    if (aerobicType == 'treadmill' || environment == ExerciseEnvironment.gym) {
+      timingMessage = '트레드밀 속도 4.8~5.6 km/h (경사도 1~2%)로 설정하세요';
+      tips.insert(0, '트레드밀 손잡이에 체중을 싣지 않고 시선을 정면으로 유지하며 걷습니다.');
     }
 
     final aerobic = AerobicPrescription(
@@ -266,8 +286,13 @@ class PrescriptionRepository {
       filteredList = uniqueExercises.values.toList();
     }
 
-    // 최대 4~5종목 균형 추천
-    if (filteredList.length > 5) {
+    // 사용자가 특정 운동들을 선택한 경우 해당 운동들만 포함
+    if (selectedExerciseNames != null && selectedExerciseNames.isNotEmpty) {
+      filteredList = filteredList
+          .where((e) => selectedExerciseNames.contains(e.name))
+          .toList();
+    } else if (filteredList.length > 5) {
+      // 최대 4~5종목 균형 추천
       filteredList = filteredList.sublist(0, 5);
     } else if (filteredList.isEmpty) {
       // 기본 폴백 안전 운동

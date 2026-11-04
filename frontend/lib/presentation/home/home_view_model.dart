@@ -16,6 +16,8 @@ class HomeState {
     this.records = const <WorkoutRecord>[],
     this.defaultTargetSets = 3,
     this.customExerciseSets = const <String, int>{},
+    this.aerobicType = 'walking',
+    this.selectedExerciseNames,
     this.isLoading = false,
   });
 
@@ -28,6 +30,8 @@ class HomeState {
   final List<WorkoutRecord> records;
   final int defaultTargetSets;
   final Map<String, int> customExerciseSets;
+  final String aerobicType;
+  final Set<String>? selectedExerciseNames;
   final bool isLoading;
 
   int getTargetSetsFor(String exerciseName) {
@@ -44,6 +48,8 @@ class HomeState {
     List<WorkoutRecord>? records,
     int? defaultTargetSets,
     Map<String, int>? customExerciseSets,
+    String? aerobicType,
+    Set<String>? selectedExerciseNames,
     bool? isLoading,
   }) {
     return HomeState(
@@ -56,6 +62,9 @@ class HomeState {
       records: records ?? this.records,
       defaultTargetSets: defaultTargetSets ?? this.defaultTargetSets,
       customExerciseSets: customExerciseSets ?? this.customExerciseSets,
+      aerobicType: aerobicType ?? this.aerobicType,
+      selectedExerciseNames:
+          selectedExerciseNames ?? this.selectedExerciseNames,
       isLoading: isLoading ?? this.isLoading,
     );
   }
@@ -93,13 +102,22 @@ class HomeViewModel extends ChangeNotifier {
   HomeViewModel({
     required Set<ConditionType> initialConditions,
     required ExerciseEnvironment initialEnvironment,
+    Set<String>? selectedExerciseNames,
+    String aerobicType = 'walking',
+    this._aerobicDurationMinutes,
+    this._aerobicTargetSpm,
+    int targetSets = 3,
     PrescriptionRepository? repository,
     WorkoutHistoryRepository? historyRepository,
   })  : _repository = repository ?? const PrescriptionRepository(),
-        _historyRepository = historyRepository ?? const WorkoutHistoryRepository(),
+        _historyRepository =
+            historyRepository ?? const WorkoutHistoryRepository(),
         _state = HomeState(
           conditions: initialConditions,
           environment: initialEnvironment,
+          selectedExerciseNames: selectedExerciseNames,
+          aerobicType: aerobicType,
+          defaultTargetSets: targetSets,
         ) {
     _loadPrescription();
     _loadHistory();
@@ -107,6 +125,8 @@ class HomeViewModel extends ChangeNotifier {
 
   final PrescriptionRepository _repository;
   final WorkoutHistoryRepository _historyRepository;
+  final int? _aerobicDurationMinutes;
+  final int? _aerobicTargetSpm;
   HomeState _state;
   HomeState get state => _state;
 
@@ -148,6 +168,10 @@ class HomeViewModel extends ChangeNotifier {
     final result = await _repository.getPrescription(
       conditions: _state.conditions,
       environment: _state.environment,
+      selectedExerciseNames: _state.selectedExerciseNames,
+      aerobicType: _state.aerobicType,
+      customAerobicDuration: _aerobicDurationMinutes,
+      customAerobicCadence: _aerobicTargetSpm,
     );
 
     _state = _state.copyWith(
