@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../domain/model/condition_type.dart';
 import '../../ui/app_colors.dart';
+import '../home/home_screen.dart';
 import 'onboarding_view_model.dart';
 import 'widgets/clinical_highlights_banner.dart';
 import 'widgets/condition_card.dart';
@@ -36,7 +37,20 @@ class _OnboardingRootState extends State<OnboardingRoot> {
       builder: (context, _) {
         return OnboardingScreen(
           state: _viewModel.state,
-          onAction: _viewModel.onAction,
+          onAction: (action) {
+            if (action is SubmitOnboardingAction) {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => HomeRoot(
+                    selectedConditions: _viewModel.state.selectedConditions,
+                    environment: _viewModel.state.environment,
+                  ),
+                ),
+              );
+              return;
+            }
+            _viewModel.onAction(action);
+          },
         );
       },
     );
